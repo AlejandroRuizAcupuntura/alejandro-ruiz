@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda · Alejandro Ruiz</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/monograma-blanco.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="hdr is-stuck">
+  <div class="wrap hdr__in">
+    <a class="brand" href="index.html">
+      <img src="assets/monograma-crema.svg" alt="">
+      <span><b>Agenda</b><span>Acceso profesional</span></span>
+    </a>
+    <nav class="nav nav--plain">
+      <a href="index.html">Ver la web</a>
+      <button class="btn btn--ghost" id="btn-salir" hidden>Salir</button>
+    </nav>
+  </div>
+</header>
+
+<main class="agenda">
+  <div class="wrap">
+
+    <!-- Sin base de datos configurada -->
+    <div class="panel login" id="vista-sin-bd" hidden>
+      <h2 style="margin-bottom:.6rem">Agenda no conectada</h2>
+      <p class="muted">
+        Todavía no se ha configurado la base de datos. Sigue los pasos del archivo
+        <code>README.md</code> y rellena <code>js/config.js</code> con la URL y la clave
+        pública del proyecto de Supabase.
+      </p>
+    </div>
+
+    <!-- Login -->
+    <div class="panel login" id="vista-login" hidden>
+      <p class="eyebrow" style="text-align:center">Alejandro Ruiz</p>
+      <h2 style="text-align:center;margin-bottom:1.6rem">Entrar en la agenda</h2>
+      <form id="form-login">
+        <div class="field">
+          <label for="l-email">Email</label>
+          <input id="l-email" type="email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="l-pass">Contraseña</label>
+          <input id="l-pass" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn" style="width:100%" type="submit">Entrar</button>
+        <div class="msg" id="login-msg" role="status"></div>
+      </form>
+    </div>
+
+    <!-- Panel principal -->
+    <div id="vista-panel" hidden>
+
+      <div class="toolbar">
+        <div>
+          <p class="eyebrow" style="margin:0">Agenda</p>
+          <h2 style="font-size:2rem" id="titulo-vista">Tu cuaderno de citas</h2>
+        </div>
+        <div class="chips" id="filtros">
+          <button class="chip is-on" data-f="proximas">Próximas</button>
+          <button class="chip" data-f="hoy">Hoy</button>
+          <button class="chip" data-f="semana">7 días</button>
+          <button class="chip" data-f="mes">30 días</button>
+          <button class="chip" data-f="pasadas">Pasadas</button>
+          <button class="chip" data-f="todas">Todas</button>
+        </div>
+      </div>
+
+      <div class="chips" style="margin-bottom:1.5rem">
+        <button class="chip chip--accion" id="chip-nueva">+ Nueva cita</button>
+        <button class="chip chip--accion" id="chip-bloqueo">Bloquear día u hora</button>
+        <button class="chip" id="chip-refrescar">Actualizar</button>
+      </div>
+
+      <!-- Alta / edición de cita -->
+      <div class="panel" id="box-cita" hidden style="margin-bottom:1.5rem">
+        <h3 id="titulo-cita" style="margin-bottom:1.2rem">Nueva cita</h3>
+        <form id="form-cita-admin">
+          <input type="hidden" id="c-id">
+          <div class="form__row">
+            <div class="field"><label for="c-nombre">Nombre *</label><input id="c-nombre" required maxlength="80"></div>
+            <div class="field"><label for="c-tel">Teléfono *</label><input id="c-tel" required maxlength="25"></div>
+          </div>
+          <div class="form__row">
+            <div class="field"><label for="c-servicio">Servicio *</label><select id="c-servicio" required></select></div>
+            <div class="field"><label for="c-email">Email</label><input id="c-email" type="email" maxlength="120"></div>
+          </div>
+          <div class="form__row">
+            <div class="field"><label for="c-fecha">Día *</label><input id="c-fecha" type="date" required></div>
+            <div class="field"><label for="c-hora">Hora *</label><input id="c-hora" type="time" step="900" required list="horas-sugeridas">
+              <datalist id="horas-sugeridas"></datalist>
+            </div>
+          </div>
+          <div class="field">
+            <label for="c-estado">Estado</label>
+            <select id="c-estado">
+              <option value="pendiente">Pendiente</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+          <div class="field"><label for="c-notas">Notas del paciente</label><textarea id="c-notas" maxlength="500"></textarea></div>
+          <div class="field"><label for="c-nota-admin">Nota privada (solo la ves tú)</label><textarea id="c-nota-admin" maxlength="500"></textarea></div>
+          <div class="form__actions">
+            <button class="btn" type="submit" id="c-guardar">Guardar</button>
+            <button class="btn btn--ghost" type="button" id="c-cancelar">Cerrar</button>
+          </div>
+          <div class="msg" id="cita-msg" role="status"></div>
+        </form>
+      </div>
+
+      <!-- Bloqueos -->
+      <div class="panel" id="box-bloqueo" hidden style="margin-bottom:1.5rem">
+        <h3 style="margin-bottom:.4rem">Bloquear día u hora</h3>
+        <p class="muted" style="font-size:.86rem;margin-bottom:1.2rem">
+          Un día bloqueado desaparece entero del calendario público. Si dejas la hora
+          vacía se bloquea el día completo; si pones una hora, solo esa franja.
+        </p>
+        <form id="form-bloqueo">
+          <div class="form__row">
+            <div class="field"><label for="b-fecha">Día *</label><input id="b-fecha" type="date" required></div>
+            <div class="field"><label for="b-hora">Hora (vacío = día entero)</label><input id="b-hora" type="time" step="900" list="horas-sugeridas"></div>
+          </div>
+          <div class="field"><label for="b-motivo">Motivo (privado)</label><input id="b-motivo" maxlength="120" placeholder="Vacaciones, formación, cita personal…"></div>
+          <button class="btn" type="submit">Bloquear</button>
+          <div class="msg" id="bloqueo-msg" role="status"></div>
+        </form>
+
+        <h4 style="margin:1.8rem 0 .8rem;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute)">
+          Bloqueos activos
+        </h4>
+        <div id="lista-bloqueos" class="muted">Cargando…</div>
+      </div>
+
+      <!-- Listado de citas -->
+      <div class="panel">
+        <div class="tbl__scroll">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Fecha</th><th>Hora</th><th>Paciente</th><th>Servicio</th>
+                <th>Notas</th><th>Estado</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"><tr><td colspan="7" class="muted">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="muted" style="font-size:.8rem;margin-top:1.2rem">
+        Datos de pacientes: trátalos con confidencialidad. Elimina las citas antiguas que
+        ya no necesites conservar.
+      </p>
+    </div>
+
+  </div>
+</main>
+
+<!-- Historial de cambios de una cita -->
+<div class="modal" id="modal-historial" hidden>
+  <div class="modal__caja">
+    <div class="modal__cab">
+      <h3>Historial de la cita</h3>
+      <button class="chip" id="cerrar-historial">Cerrar</button>
+    </div>
+    <div id="cuerpo-historial" class="muted">Cargando…</div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/dist/umd/supabase.min.js"></script>
+<script src="js/db.js"></script>
+<script src="js/agenda.js"></script>
+</body>
+</html>
