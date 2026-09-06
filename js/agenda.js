@@ -85,6 +85,9 @@
   $('#chip-refrescar').addEventListener('click', cargar);
 
   function rango() {
+    // "Sin confirmar": cualquier fecha, incluidas las ya pasadas que se
+    // quedaron sin responder. El filtrado por estado va después.
+    if (filtro === 'pendientes') return { desde: '2000-01-01', hasta: '2100-01-01' };
     if (filtro === 'hoy')     return { desde: hoyISO, hasta: hoyISO };
     if (filtro === 'semana')  return { desde: hoyISO, hasta: masDias(7) };
     if (filtro === 'mes')     return { desde: hoyISO, hasta: masDias(30) };
@@ -98,10 +101,14 @@
     tbody.innerHTML = '<tr><td colspan="7" class="muted">Cargando…</td></tr>';
     try {
       citasCache = await DB.listarCitas(rango());
+      if (filtro === 'pendientes') citasCache = citasCache.filter(c => c.estado === 'pendiente');
       if (filtro === 'pasadas') citasCache.reverse();
 
       if (!citasCache.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="muted">No hay citas en este periodo.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="muted">' +
+          (filtro === 'pendientes'
+            ? 'Nada pendiente: todas las citas están confirmadas o anuladas.'
+            : 'No hay citas en este periodo.') + '</td></tr>';
       } else {
         let ultimaFecha = null;
         tbody.innerHTML = citasCache.map(c => {
@@ -147,6 +154,17 @@
       tbody.innerHTML = `<tr><td colspan="7" class="muted">Error al cargar: ${escapar(e.message)}</td></tr>`;
     }
     if (!boxBloqueo.hidden) cargarBloqueos();
+    actualizarContador();
+  }
+
+  /* Número de citas sin confirmar, visible siempre en el chip */
+  async function actualizarContador() {
+    const el = $('#cuenta-pendientes');
+    try {
+      const n = await DB.contarPendientes();
+      el.textContent = n ? `(${n})` : '';
+      el.closest('.chip').classList.toggle('tiene-pendientes', n > 0);
+    } catch (e) { el.textContent = ''; }
   }
 
   function conectarAcciones() {

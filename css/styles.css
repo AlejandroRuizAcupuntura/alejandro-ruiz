@@ -604,3 +604,12 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
   /* La fecha ya la da la cabecera del día: no repetirla en cada ficha */
   .tbl td[data-l="Fecha"]{ display:none; }
 }
+
+/* Chip "Sin confirmar": destaca solo cuando hay algo que atender */
+.chip--aviso.tiene-pendientes{
+  border-color:var(--clay); color:var(--clay); font-weight:500;
+}
+.chip--aviso.tiene-pendientes.is-on{
+  background:var(--clay); border-color:var(--clay); color:var(--bone);
+}
+#cuenta-pendientes:not(:empty){ margin-left:.15rem; }

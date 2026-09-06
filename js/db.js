@@ -63,6 +63,18 @@ window.DB = (function () {
     return data || [];
   }
 
+  /* Cuántas citas siguen sin confirmar. Cuenta también las de fechas ya
+     pasadas: si una se quedó sin responder, hay que verla, no esconderla.
+     Así el número del chip coincide siempre con lo que muestra la lista. */
+  async function contarPendientes() {
+    const { count, error } = await client
+      .from('citas')
+      .select('id', { count: 'exact', head: true })
+      .eq('estado', 'pendiente');
+    if (error) throw error;
+    return count || 0;
+  }
+
   async function crearCita(c) {
     const { error } = await client.from('citas').insert({
       nombre: c.nombre, telefono: c.telefono, email: c.email || null,
@@ -120,7 +132,7 @@ window.DB = (function () {
     activo, client,
     disponibilidad, solicitarCita,
     login, logout, sesion,
-    listarCitas, crearCita, actualizarCita, borrarCita, historial,
+    listarCitas, contarPendientes, crearCita, actualizarCita, borrarCita, historial,
     listarBloqueos, crearBloqueo, borrarBloqueo
   };
 })();
