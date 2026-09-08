@@ -55,9 +55,9 @@ window.SITE = {
       titulo: "Sesión de acupuntura y osteopatía",
       duracion: "1 hora",
       precio: "45 €",
-      resumen: "Una sola tarifa para todo. En consulta decidimos juntos qué necesitas ese día: dolor, descanso, digestión o estrés.",
+      resumen: "Una sola tarifa para todo. En consulta decidimos juntos qué necesitas ese día.",
       detalle: [
-        "Acupuntura, osteopatía, moxibustión, ventosas o punción seca",
+        "Acupuntura, osteopatía, terapia manual",
         "Se combinan según lo que pida el cuerpo ese día",
         "Incluye valoración y pautas para casa"
       ]
