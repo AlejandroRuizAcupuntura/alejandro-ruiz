@@ -126,11 +126,24 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
 .hero h1 em{ font-style:italic; color:var(--sage-deep); }
 .hero .lead{ margin-top:1.6rem; }
 .hero__cta{ display:flex; flex-wrap:wrap; gap:.9rem; margin-top:2.4rem; }
+/* Cormorant Garamond usa cifras de estilo antiguo: el 1 y el 0 quedan
+   a la altura de las minúsculas y los números no se leen. Aquí se piden
+   las cifras normales, de caja alta, allí donde hay que leer un dato. */
+.hero__meta div strong,
+.hero__art .tag b,
+.card__price,
+.step b,
+.linea__anios,
+.tbl__dia td{
+  font-variant-numeric:lining-nums;
+  font-feature-settings:"lnum" 1;
+}
+
 .hero__meta{
   display:flex; flex-wrap:wrap; gap:2rem; margin-top:3.2rem;
   padding-top:1.8rem; border-top:1px solid var(--line);
 }
-.hero__meta div strong{ display:block; font-family:"Cormorant Garamond",serif; font-size:2rem; line-height:1; }
+.hero__meta div strong{ display:block; font-family:"Cormorant Garamond",serif; font-size:2.1rem; line-height:1; font-weight:500; }
 .hero__meta div span{ font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-mute); }
 .hero__art{ position:relative; }
 .hero__art .frame{
@@ -447,7 +460,7 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
     display:grid; grid-template-columns:repeat(3,1fr); gap:.9rem;
     margin-top:2.2rem; padding-top:1.4rem;
   }
-  .hero__meta div strong{ font-size:1.6rem; }
+  .hero__meta div strong{ font-size:1.75rem; }
   .hero__meta div span{ font-size:.6rem; letter-spacing:.1em; line-height:1.3; display:block; }
 
   /* Marquee un poco más contenido */
