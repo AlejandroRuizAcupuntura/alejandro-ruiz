@@ -381,11 +381,16 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
     position:fixed; inset:var(--hdr-h) 0 auto 0; background:var(--bone);
     flex-direction:column; align-items:stretch; gap:0;
     padding:.5rem var(--gutter) calc(1.6rem + env(safe-area-inset-bottom,0px));
-    border-bottom:1px solid var(--line); transform:translateY(-115%);
-    transition:transform .38s var(--ease); box-shadow:0 24px 40px -28px rgba(0,0,0,.45);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 24px 40px -28px rgba(0,0,0,.45);
     max-height:calc(100dvh - var(--hdr-h)); overflow-y:auto;
+    /* Ocultar con visibilidad, no desplazándolo: un translateY negativo
+       solo tapa el menú si es más alto que la cabecera, y dejaba asomar
+       los últimos enlaces por debajo. */
+    opacity:0; visibility:hidden; transform:translateY(-10px);
+    transition:opacity .28s var(--ease), transform .28s var(--ease), visibility .28s;
   }
-  .nav.is-open{ transform:none; }
+  .nav.is-open{ opacity:1; visibility:visible; transform:none; }
 
   /* Páginas sin menú hamburguesa (agenda, legal): nav siempre visible */
   .nav.nav--plain{
@@ -728,4 +733,16 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
   .nav{ gap:1.15rem; }
   .nav a{ font-size:.67rem; letter-spacing:.08em; white-space:nowrap; }
   .nav .btn{ padding:.62rem 1rem; font-size:.67rem; letter-spacing:.1em; }
+}
+
+/* Aguja de acupuntura junto al nombre */
+.brand__sep{ width:1px; height:26px; background:var(--line); flex:none; }
+.aguja{ width:25px; height:25px; color:var(--sage); flex:none; }
+.ftr .aguja{ color:#8B9084; }
+@media (max-width:900px){
+  .brand__sep{ display:none; }           /* sin separador, pero la aguja se queda */
+  .aguja{ width:21px; height:21px; margin-left:.15rem; }
+}
+@media (max-width:359px){
+  .aguja{ display:none; }                /* móviles muy estrechos */
 }
