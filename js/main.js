@@ -50,6 +50,46 @@
   if (mq) {
     const linea = S.motivos.map(m => `<span>${m}</span>`).join('');
     mq.innerHTML = linea + linea;   // duplicado para el bucle infinito
+
+    /* La cinta mide unos 5.000 px: con una duración fija, en el móvil
+       tardaba 30 s en dar una vuelta y se notaba parada. Se calcula a
+       partir del ancho real para que la velocidad sea siempre la misma. */
+    const ajustarVelocidad = () => {
+      const anchoLinea = mq.scrollWidth / 2;
+      if (!anchoLinea) return;
+      const pxPorSeg = innerWidth <= 760 ? 130 : 100;
+      mq.style.animationDuration = (anchoLinea / pxPorSeg).toFixed(1) + 's';
+    };
+    ajustarVelocidad();
+    addEventListener('resize', ajustarVelocidad);
+    /* Las tipografías cambian el ancho al terminar de cargar */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustarVelocidad);
+
+    /* Fuera de pantalla la animación se detiene: en móviles modestos
+       animar sin parar una capa de 5.000 px provocaba tirones.
+       Se mide la posición real en cada scroll (como mucho una vez por
+       fotograma). Si algo fallara, la cinta se queda en marcha, que es
+       el comportamiento de siempre: nunca se queda congelada. */
+    /* Pausa cuando la cinta no está en pantalla: en móviles modestos
+       animar sin descanso una capa de 5.000 px provoca tirones.
+
+       A prueba de fallos: la cinta arranca en marcha y solo se permite
+       pausarla DESPUÉS de haberla visto entrar en pantalla al menos una
+       vez. Si el observador no funcionara en algún navegador, la cinta
+       se queda girando como siempre — nunca congelada. */
+    if ('IntersectionObserver' in window) {
+      let comprobado = false;
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) {
+          comprobado = true;
+          mq.style.animationPlayState = 'running';
+          mq.style.willChange = 'transform';
+        } else if (comprobado) {
+          mq.style.animationPlayState = 'paused';
+          mq.style.willChange = 'auto';
+        }
+      }, { rootMargin: '150px' }).observe(mq.parentElement || mq);
+    }
   }
 
   /* ---------- 4. Servicios ---------- */
