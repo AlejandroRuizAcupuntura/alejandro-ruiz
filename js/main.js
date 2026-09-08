@@ -66,6 +66,9 @@
           ? `<span class="card__sab">Sábados por la mañana, ${S.precioSabado}</span>` : ''}
         <p>${s.resumen}</p>
         <ul>${s.detalle.map(d => `<li>${d}</li>`).join('')}</ul>
+        ${s.video ? `<a class="card__video" href="${s.video}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+          ${s.videoTexto || 'Ver vídeo explicativo'}</a>` : ''}
         <a class="card__link" href="#reserva" data-servicio="${s.id}">Reservar esta sesión →</a>
       </article>`).join('');
   }
@@ -73,8 +76,10 @@
   /* ---------- 5. Salud ginecológica ---------- */
   const gine = S.ginecologia;
   if (gine && $('#gine-titulo')) {
-    $('#gine-titulo').textContent     = gine.titulo;
-    $('#gine-intro').innerHTML        = gine.intro.map(t => `<p class="lead">${t}</p>`).join('');
+    $('#gine-titulo').textContent = gine.titulo;
+    /* Solo el primer párrafo queda a la vista: el resto se despliega.
+       La sección se menciona, pero no ocupa media portada. */
+    $('#gine-intro').innerHTML        = `<p class="lead">${gine.intro[0]}</p>`;
     $('#gine-entradilla').textContent = gine.entradilla;
     $('#gine-cierre').textContent     = gine.cierre;
     if (gine.nota) $('#gine-nota').textContent = gine.nota;
@@ -88,6 +93,23 @@
           <p>${i.texto}</p>
         </div>
       </article>`).join('');
+
+    /* Los párrafos restantes de la introducción van dentro del desplegable */
+    const resto = gine.intro.slice(1);
+    if (resto.length) {
+      $('#gine-mas').insertAdjacentHTML('afterbegin',
+        resto.map(t => `<p class="lead gine__resto">${t}</p>`).join(''));
+    }
+
+    /* Botón "Ver más detalles" */
+    const tgl = $('#gine-toggle'), mas = $('#gine-mas'), txt = $('.gine__toggle-txt', tgl);
+    tgl.addEventListener('click', () => {
+      const abierto = tgl.getAttribute('aria-expanded') === 'true';
+      tgl.setAttribute('aria-expanded', String(!abierto));
+      mas.hidden = abierto;
+      txt.textContent = abierto ? 'Ver más detalles' : 'Ver menos';
+      if (abierto) tgl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   }
 
   /* ---------- 6. Sobre mí ---------- */

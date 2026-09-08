@@ -112,7 +112,11 @@ window.SITE = {
         "Indicada para seguimiento entre sesiones presenciales"
       ],
       /* Este servicio no se reserva por el calendario: abre WhatsApp */
-      soloWhatsapp: true
+      soloWhatsapp: true,
+      /* Vídeo que explica en qué consiste. Pega aquí el enlace
+         (YouTube, Instagram, Vimeo…). Con "" no aparece el enlace. */
+      video: "",
+      videoTexto: "Ver vídeo explicativo"
     }
   ],
 

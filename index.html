@@ -112,10 +112,18 @@
         <h2 id="gine-titulo"></h2>
         <div id="gine-intro"></div>
       </div>
-      <p class="gine__entradilla" id="gine-entradilla"></p>
-      <div class="gine__grid" id="gine-items"></div>
-      <p class="gine__cierre" id="gine-cierre"></p>
-      <p class="gine__nota" id="gine-nota"></p>
+      <button type="button" class="gine__toggle" id="gine-toggle"
+              aria-expanded="false" aria-controls="gine-mas">
+        <span class="gine__toggle-txt">Ver más detalles</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+
+      <div class="gine__mas" id="gine-mas" hidden>
+        <p class="gine__entradilla" id="gine-entradilla"></p>
+        <div class="gine__grid" id="gine-items"></div>
+        <p class="gine__cierre" id="gine-cierre"></p>
+        <p class="gine__nota" id="gine-nota"></p>
+      </div>
     </div>
   </section>
 
