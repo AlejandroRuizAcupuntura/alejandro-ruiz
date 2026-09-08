@@ -1,23 +1,53 @@
-TARJETA DE VISITA — Alejandro Ruiz
-==================================
+TARJETAS DE VISITA — Alejandro Ruiz
+===================================
 
-tarjeta-frente.png   anverso  (logo y nombre)
-tarjeta-dorso.png    reverso  (datos de contacto y QR)
+QUÉ HAY AQUÍ
+------------
+hoja-A4-frentes.pdf   Hoja A4 con 10 anversos  <- para imprimir tú mismo
+hoja-A4-dorsos.pdf    Hoja A4 con 10 reversos  <- para imprimir tú mismo
 
-Medidas
--------
-85 x 55 mm  (tamaño estándar europeo)
-+ 3 mm de sangrado por cada lado  ->  el archivo mide 91 x 61 mm
-300 ppp = 1075 x 722 píxeles
+tarjeta-frente.png    Tarjeta suelta, anverso  <- para llevar a imprenta
+tarjeta-dorso.png     Tarjeta suelta, reverso  <- para llevar a imprenta
 
-Al pedirlas en imprenta, di que el archivo YA LLEVA 3 mm de sangrado.
-La imprenta recorta por la línea de 85 x 55 mm.
 
-El QR
------
+PARA IMPRIMIR EN CASA O EN UNA COPISTERÍA
+-----------------------------------------
+Usa los dos PDF. Salen 10 tarjetas por hoja.
+
+1. Imprime "hoja-A4-frentes.pdf".
+2. Dale la vuelta al papel y mete la misma hoja otra vez.
+3. Imprime "hoja-A4-dorsos.pdf".
+4. Corta por las marcas de las esquinas.
+
+MUY IMPORTANTE: en el diálogo de impresión elige "Tamaño real"
+o "100 %". Si dejas "Ajustar a la página", las tarjetas saldrán
+más pequeñas de 85 x 55 mm y el corte no cuadrará.
+
+Papel recomendado: cartulina de 300 g. En papel normal quedan
+blandas y se doblan.
+
+Como las 10 tarjetas son idénticas, no importa por qué lado
+metas el papel: el reverso siempre cae bien.
+
+
+PARA ENCARGARLAS A UNA IMPRENTA
+-------------------------------
+Manda los dos PNG sueltos (tarjeta-frente.png y tarjeta-dorso.png).
+
+Diles esto:
+  - Tamaño final 85 x 55 mm
+  - El archivo YA LLEVA 3 mm de sangrado por cada lado
+    (por eso mide 91 x 61 mm)
+  - 300 ppp
+
+
+EL CÓDIGO QR
+------------
 Lleva a: https://alejandroruizacupuntura.github.io/alejandro-ruiz/
-Mide 24 mm. No lo hagas más pequeño de 20 mm o dejará de leerse.
-El original está en ../assets/qr.svg (vectorial, se puede ampliar
-todo lo que haga falta sin perder calidad).
+Mide 28 mm en la tarjeta. No lo dejes por debajo de 20 mm.
 
-Si algún día se cambia la dirección de la web, hay que rehacer el QR.
+El original vectorial está en ../assets/qr.svg — se puede ampliar
+a cualquier tamaño (cartel, escaparate) sin perder nitidez.
+
+Si algún día cambia la dirección de la web, hay que rehacer el QR:
+el que hay aquí seguiría llevando a la dirección antigua.
