@@ -185,14 +185,14 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
 .card__price{ font-family:"Cormorant Garamond",serif; font-size:1.5rem; color:var(--sage-deep); white-space:nowrap; }
 .card__dur{ font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-mute); }
 .card__sab{ font-size:.78rem; color:var(--sage-deep); }
-.card__video{
+.card__consulta{
   display:inline-flex; align-items:center; gap:.45rem; align-self:flex-start;
   font-size:.85rem; color:var(--sage-deep); text-decoration:none;
   border-bottom:1px solid var(--line); padding-bottom:.15rem;
   transition:border-color .2s var(--ease);
 }
-.card__video:hover{ border-color:var(--sage); }
-.card__video svg{ width:15px; height:15px; fill:currentColor; flex:none; }
+.card__consulta:hover{ border-color:var(--sage); }
+.card__consulta svg{ width:15px; height:15px; fill:currentColor; flex:none; }
 .card p{ color:var(--ink-soft); font-size:.95rem; margin:0; }
 .card ul{ margin:.2rem 0 0; padding:0; list-style:none; display:grid; gap:.45rem; }
 .card li{ font-size:.88rem; color:var(--ink-mute); padding-left:1.1rem; position:relative; }

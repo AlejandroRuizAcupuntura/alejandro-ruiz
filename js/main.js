@@ -106,10 +106,13 @@
           ? `<span class="card__sab">Sábados por la mañana, ${S.precioSabado}</span>` : ''}
         <p>${s.resumen}</p>
         <ul>${s.detalle.map(d => `<li>${d}</li>`).join('')}</ul>
-        ${s.video ? `<a class="card__video" href="${s.video}" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
-          ${s.videoTexto || 'Ver vídeo explicativo'}</a>` : ''}
-        <a class="card__link" href="#reserva" data-servicio="${s.id}">Reservar esta sesión →</a>
+        ${s.soloWhatsapp ? `<a class="card__consulta" href="${waBase}?text=${
+            encodeURIComponent('Hola Alejandro, me gustaría saber más sobre la ' + s.titulo.toLowerCase() + '.')
+          }" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C7 3 3 6.6 3 11c0 2.3 1.1 4.4 2.9 5.8L5 21l4.4-1.7c.8.2 1.7.3 2.6.3 5 0 9-3.6 9-8s-4-8-9-8z"/></svg>
+          Pregúntame por WhatsApp</a>` : ''}
+        <a class="card__link" href="#reserva" data-servicio="${s.id}">${
+          s.soloWhatsapp ? 'Solicitar esta sesión →' : 'Reservar esta sesión →'}</a>
       </article>`).join('');
   }
 

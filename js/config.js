@@ -109,14 +109,12 @@ window.SITE = {
       detalle: [
         "No requiere presencia en la clínica",
         "Se acuerda día y hora directamente por WhatsApp",
-        "Indicada para seguimiento entre sesiones presenciales"
+        "Escríbeme si quieres que te explique en qué consiste"
       ],
-      /* Este servicio no se reserva por el calendario: abre WhatsApp */
-      soloWhatsapp: true,
-      /* Vídeo que explica en qué consiste. Pega aquí el enlace
-         (YouTube, Instagram, Vimeo…). Con "" no aparece el enlace. */
-      video: "",
-      videoTexto: "Ver vídeo explicativo"
+      /* Este servicio no se reserva por el calendario: abre WhatsApp.
+         Al llevar esta marca, la tarjeta muestra un enlace directo
+         para preguntar dudas antes de reservar. */
+      soloWhatsapp: true
     }
   ],
 
