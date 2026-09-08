@@ -181,9 +181,9 @@ window.SITE = {
     titulo: "Un acompañamiento respetuoso en cada etapa de la vida de la mujer",
     intro: [
       "El cuerpo femenino atraviesa numerosos cambios a lo largo de la vida. El ciclo menstrual, la fertilidad, el embarazo, el posparto, la perimenopausia y la menopausia pueden venir acompañados de molestias y desequilibrios que afectan al bienestar físico y emocional.",
-      "Desde la acupuntura y la osteopatía, ofrecemos un acompañamiento individualizado orientado a mejorar el bienestar y favorecer una mayor conexión con el propio cuerpo."
+      "Desde la acupuntura y la osteopatía, ofrezco un acompañamiento individualizado orientado a mejorar el bienestar y favorecer una mayor conexión con el propio cuerpo."
     ],
-    entradilla: "Podemos acompañarte, entre otros, en procesos relacionados con:",
+    entradilla: "Puedo acompañarte, entre otros, en procesos relacionados con:",
     items: [
       { titulo: "Ciclo menstrual",
         texto: "Dolor, tensión y molestias asociadas al ciclo." },
@@ -198,7 +198,9 @@ window.SITE = {
       { titulo: "Endometriosis",
         texto: "Como acompañamiento del dolor, la tensión pélvica y el bienestar general, junto con el seguimiento médico correspondiente." }
     ],
-    cierre: "Nuestro objetivo es ofrecerte un espacio donde puedas sentirte escuchada, comprendida y acompañada. Combinamos diferentes técnicas según tus necesidades, respetando siempre tu momento vital."
+    cierre: "Mi objetivo es ofrecerte un espacio donde puedas sentirte escuchada, comprendida y acompañada. Combino diferentes técnicas según tus necesidades, respetando siempre tu momento vital.",
+    /* No es un servicio aparte: entra en la sesión habitual. */
+    nota: "Todo ello dentro de la sesión habitual de 1 hora."
   },
 
   /* --- Testimonios ----------------------------------------- */

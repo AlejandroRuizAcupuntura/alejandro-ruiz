@@ -75,6 +75,7 @@
     $('#gine-intro').innerHTML        = gine.intro.map(t => `<p class="lead">${t}</p>`).join('');
     $('#gine-entradilla').textContent = gine.entradilla;
     $('#gine-cierre').textContent     = gine.cierre;
+    if (gine.nota) $('#gine-nota').textContent = gine.nota;
     $('#gine-items').innerHTML = gine.items.map(i => `
       <article class="gine__item">
         <svg class="gine__hoja" viewBox="0 0 24 24" aria-hidden="true">

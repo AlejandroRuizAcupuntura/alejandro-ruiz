@@ -712,3 +712,20 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
   .cierre__bloque h3{ font-size:1.5rem; }
   #sm-objetivo .cierre__bloque{ padding:1.4rem 1.2rem; }
 }
+
+.gine__nota{
+  margin:1.1rem 0 0; font-size:.85rem; color:var(--ink-mute);
+  letter-spacing:.02em;
+}
+
+/* Franja intermedia (tablet horizontal): con 5 enlaces + botón el menú
+   no cabe a tamaño completo, pero aún no toca el menú hamburguesa. */
+@media (min-width:761px) and (max-width:1080px){
+  .hdr__in{ gap:1rem; }
+  .brand img{ height:32px; }
+  .brand b{ font-size:1.05rem; white-space:nowrap; }
+  .brand span{ font-size:.54rem; letter-spacing:.14em; white-space:nowrap; }
+  .nav{ gap:1.15rem; }
+  .nav a{ font-size:.67rem; letter-spacing:.08em; white-space:nowrap; }
+  .nav .btn{ padding:.62rem 1rem; font-size:.67rem; letter-spacing:.1em; }
+}
