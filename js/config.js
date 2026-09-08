@@ -24,7 +24,7 @@ window.SITE = {
   /* --- Horario --------------------------------------------- */
   horario: [
     { dias: "Lunes a viernes", horas: "10:00 – 13:30 · 15:00 – 19:45" },
-    { dias: "Sábado",          horas: "Consultar en clínica" },
+    { dias: "Sábado",          horas: "10:00 – 13:30" },
     { dias: "Domingo",         horas: "Cerrado" }
   ],
 
@@ -38,14 +38,14 @@ window.SITE = {
      Van de 75 en 75 minutos para respetar el descanso.
      Mañana  10:00 → 13:30 · Tarde 15:00 → 19:45
      La última sesión empieza a las 18:45 y termina a las 19:45.
-     Los sábados se consultan directamente en clínica.            */
+     Sábados: solo mañana, 10:00 → 13:30 (tarifa distinta).       */
   franjas: {
     1: ["10:00","11:15","12:30","15:00","16:15","17:30","18:45"],
     2: ["10:00","11:15","12:30","15:00","16:15","17:30","18:45"],
     3: ["10:00","11:15","12:30","15:00","16:15","17:30","18:45"],
     4: ["10:00","11:15","12:30","15:00","16:15","17:30","18:45"],
     5: ["10:00","11:15","12:30","15:00","16:15","17:30","18:45"],
-    6: [],
+    6: ["10:00","11:15","12:30"],
     0: []
   },
 
@@ -55,6 +55,10 @@ window.SITE = {
 
   /* Cuántos días vista se pueden reservar */
   diasReservables: 45,
+
+  /* Recargo de sábado: la sesión tiene otro precio ese día.
+     Pon "" para que no aparezca ningún aviso de sábado.          */
+  precioSabado: "55 €",
 
   /* --- Servicios ------------------------------------------- */
   servicios: [

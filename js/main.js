@@ -62,6 +62,8 @@
           <span class="card__price">${s.precio}</span>
         </div>
         <span class="card__dur">${s.duracion}</span>
+        ${s.id === 'sesion' && S.precioSabado
+          ? `<span class="card__sab">Sábados por la mañana, ${S.precioSabado}</span>` : ''}
         <p>${s.resumen}</p>
         <ul>${s.detalle.map(d => `<li>${d}</li>`).join('')}</ul>
         <a class="card__link" href="#reserva" data-servicio="${s.id}">Reservar esta sesión →</a>
@@ -259,7 +261,10 @@
     const chocaCon = h => ocupadas.some(o =>
       Math.abs(enMinutos(h) - enMinutos(o)) < separacion);
 
-    boxSlots.innerHTML = franjas.map(h => {
+    const notaSab = (dow === 6 && S.precioSabado)
+      ? `<span class="slots__nota">Los sábados la sesión cuesta ${S.precioSabado}.</span>` : '';
+
+    boxSlots.innerHTML = notaSab + franjas.map(h => {
       const pasada = esHoy && h <= ahora.toTimeString().slice(0, 5);
       const libre  = !chocaCon(h) && !pasada;
       return `<button type="button" class="slot" data-h="${h}" ${libre ? '' : 'disabled'}>${h}</button>`;

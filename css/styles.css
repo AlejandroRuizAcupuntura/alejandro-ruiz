@@ -167,6 +167,7 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
 .card__top{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; }
 .card__price{ font-family:"Cormorant Garamond",serif; font-size:1.5rem; color:var(--sage-deep); white-space:nowrap; }
 .card__dur{ font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-mute); }
+.card__sab{ font-size:.78rem; color:var(--sage-deep); }
 .card p{ color:var(--ink-soft); font-size:.95rem; margin:0; }
 .card ul{ margin:.2rem 0 0; padding:0; list-style:none; display:grid; gap:.45rem; }
 .card li{ font-size:.88rem; color:var(--ink-mute); padding-left:1.1rem; position:relative; }
@@ -238,6 +239,8 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
 .slot.is-on{ background:var(--ink); color:var(--bone); border-color:var(--ink); }
 .slot:disabled{ opacity:.32; cursor:not-allowed; text-decoration:line-through; }
 .slots__empty{ font-size:.9rem; color:var(--ink-mute); grid-column:1 / -1; flex:1 0 100%; }
+.slots__nota{ font-size:.82rem; color:var(--sage-deep); grid-column:1 / -1; flex:1 0 100%;
+  background:var(--sage-soft, rgba(122,139,116,.1)); border-radius:8px; padding:.5rem .7rem; }
 
 .consent{ display:flex; gap:.7rem; align-items:flex-start; font-size:.82rem; color:var(--ink-mute); line-height:1.5; }
 .consent input{ width:16px; height:16px; margin-top:.2rem; flex:none; accent-color:var(--sage-deep); }
