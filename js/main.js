@@ -57,7 +57,7 @@
     const ajustarVelocidad = () => {
       const anchoLinea = mq.scrollWidth / 2;
       if (!anchoLinea) return;
-      const pxPorSeg = innerWidth <= 760 ? 130 : 100;
+      const pxPorSeg = innerWidth <= 760 ? 110 : 88;
       mq.style.animationDuration = (anchoLinea / pxPorSeg).toFixed(1) + 's';
     };
     ajustarVelocidad();
