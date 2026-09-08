@@ -105,9 +105,37 @@ window.SITE = {
   /* --- Motivos de consulta frecuentes ---------------------- */
   motivos: [
     "Dolor de espalda y cuello", "Ciática y lumbalgia", "Migrañas y cefaleas",
-    "Ansiedad y estrés", "Insomnio", "Bruxismo", "Lesiones deportivas",
-    "Digestiones lentas", "Dolor articular", "Recuperación postparto"
+    "Ansiedad y estrés", "Insomnio", "Bruxismo", "Mareos y vértigos",
+    "Salud ginecológica", "Lesiones deportivas", "Digestiones lentas",
+    "Dolor articular", "Recuperación postparto"
   ],
+
+  /* --- Salud ginecológica ---------------------------------- */
+  /* Texto redactado por Alejandro. Se incluye dentro de la sesión
+     habitual de 45 €: no es un servicio con tarifa aparte.        */
+  ginecologia: {
+    titulo: "Un acompañamiento respetuoso en cada etapa de la vida de la mujer",
+    intro: [
+      "El cuerpo femenino atraviesa numerosos cambios a lo largo de la vida. El ciclo menstrual, la fertilidad, el embarazo, el posparto, la perimenopausia y la menopausia pueden venir acompañados de molestias y desequilibrios que afectan al bienestar físico y emocional.",
+      "Desde la acupuntura y la osteopatía, ofrecemos un acompañamiento individualizado orientado a mejorar el bienestar y favorecer una mayor conexión con el propio cuerpo."
+    ],
+    entradilla: "Podemos acompañarte, entre otros, en procesos relacionados con:",
+    items: [
+      { titulo: "Ciclo menstrual",
+        texto: "Dolor, tensión y molestias asociadas al ciclo." },
+      { titulo: "Síndrome premenstrual",
+        texto: "Acompañamiento de síntomas físicos y emocionales." },
+      { titulo: "Dolor y tensión pélvica",
+        texto: "Valoración y trabajo corporal adaptado a cada caso." },
+      { titulo: "Fertilidad",
+        texto: "Acompañamiento y cuidado durante los procesos de búsqueda de embarazo, como complemento al seguimiento médico." },
+      { titulo: "Perimenopausia y menopausia",
+        texto: "Acompañamiento de los cambios y síntomas que pueden aparecer durante esta transición." },
+      { titulo: "Endometriosis",
+        texto: "Como acompañamiento del dolor, la tensión pélvica y el bienestar general, junto con el seguimiento médico correspondiente." }
+    ],
+    cierre: "Nuestro objetivo es ofrecerte un espacio donde puedas sentirte escuchada, comprendida y acompañada. Combinamos diferentes técnicas según tus necesidades, respetando siempre tu momento vital."
+  },
 
   /* --- Testimonios ----------------------------------------- */
   /* PENDIENTE: sustituir por reseñas reales. Mientras la lista

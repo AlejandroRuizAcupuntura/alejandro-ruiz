@@ -68,7 +68,26 @@
       </article>`).join('');
   }
 
-  /* ---------- 5. Testimonios ---------- */
+  /* ---------- 5. Salud ginecológica ---------- */
+  const gine = S.ginecologia;
+  if (gine && $('#gine-titulo')) {
+    $('#gine-titulo').textContent     = gine.titulo;
+    $('#gine-intro').innerHTML        = gine.intro.map(t => `<p class="lead">${t}</p>`).join('');
+    $('#gine-entradilla').textContent = gine.entradilla;
+    $('#gine-cierre').textContent     = gine.cierre;
+    $('#gine-items').innerHTML = gine.items.map(i => `
+      <article class="gine__item">
+        <svg class="gine__hoja" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20 4C10 4 4 9 4 16c0 1.6.4 3 1 4 .6-4.6 3.4-8.4 8-10.4-3.4 2.4-5.6 5.8-6.2 10.4 1 .6 2.3 1 3.7 1 7 0 12-6 12-16 0-.6-1-1.4-2.5-1.4Z"/>
+        </svg>
+        <div>
+          <h3>${i.titulo}</h3>
+          <p>${i.texto}</p>
+        </div>
+      </article>`).join('');
+  }
+
+  /* ---------- 6. Testimonios ---------- */
   const q = $('#quotes');
   if (q) {
     const lista = S.testimonios || [];
@@ -84,12 +103,12 @@
     }
   }
 
-  /* ---------- 6. Horario ---------- */
+  /* ---------- 7. Horario ---------- */
   const hl = $('#horario-list');
   if (hl) hl.innerHTML = S.horario.map(h => `${h.dias}: ${h.horas}`).join('<br>');
 
-  /* ---------- 7. Reveal al hacer scroll ---------- */
-  $$('.section-head, .card, .step, .quote, .form, .about__card, .hero__art')
+  /* ---------- 8. Reveal al hacer scroll ---------- */
+  $$('.section-head, .card, .step, .quote, .form, .about__card, .hero__art, .gine__cab, .gine__item')
     .forEach(el => el.classList.add('rv'));
   const io = new IntersectionObserver(es => es.forEach(e => {
     if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
@@ -97,7 +116,7 @@
   $$('.rv').forEach(el => io.observe(el));
 
   /* ============================================================
-     8. FORMULARIO DE CITA
+     9. FORMULARIO DE CITA
      ============================================================ */
   const form = $('#form-cita');
   if (!form) return;
