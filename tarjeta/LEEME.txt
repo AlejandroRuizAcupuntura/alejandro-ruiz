@@ -1,0 +1,23 @@
+TARJETA DE VISITA — Alejandro Ruiz
+==================================
+
+tarjeta-frente.png   anverso  (logo y nombre)
+tarjeta-dorso.png    reverso  (datos de contacto y QR)
+
+Medidas
+-------
+85 x 55 mm  (tamaño estándar europeo)
++ 3 mm de sangrado por cada lado  ->  el archivo mide 91 x 61 mm
+300 ppp = 1075 x 722 píxeles
+
+Al pedirlas en imprenta, di que el archivo YA LLEVA 3 mm de sangrado.
+La imprenta recorta por la línea de 85 x 55 mm.
+
+El QR
+-----
+Lleva a: https://alejandroruizacupuntura.github.io/alejandro-ruiz/
+Mide 24 mm. No lo hagas más pequeño de 20 mm o dejará de leerse.
+El original está en ../assets/qr.svg (vectorial, se puede ampliar
+todo lo que haga falta sin perder calidad).
+
+Si algún día se cambia la dirección de la web, hay que rehacer el QR.
