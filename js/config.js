@@ -28,15 +28,22 @@ window.SITE = {
     { dias: "Domingo",         horas: "Cerrado" }
   ],
 
+  /* Duración de la sesión y descanso entre pacientes.
+     60 + 15 = 75 min de separación entre dos citas: si una es de
+     10:00 a 11:00, la siguiente empieza a las 11:15.             */
+  duracionMin: 60,
+  separacionMin: 15,
+
   /* Franjas reservables online por día de la semana (0 = domingo).
-     Sesiones de 1 hora. Los sábados se consultan directamente en
-     clínica, por eso no se ofrecen horas online.                */
+     Van de 75 en 75 minutos para respetar el descanso.
+     Mañana  10:00 → 13:30 · Tarde 15:00 → 18:30
+     Los sábados se consultan directamente en clínica.            */
   franjas: {
-    1: ["10:00","11:00","12:00","15:00","16:00","17:00","18:00"],
-    2: ["10:00","11:00","12:00","15:00","16:00","17:00","18:00"],
-    3: ["10:00","11:00","12:00","15:00","16:00","17:00","18:00"],
-    4: ["10:00","11:00","12:00","15:00","16:00","17:00","18:00"],
-    5: ["10:00","11:00","12:00","15:00","16:00","17:00","18:00"],
+    1: ["10:00","11:15","12:30","15:00","16:15","17:30"],
+    2: ["10:00","11:15","12:30","15:00","16:15","17:30"],
+    3: ["10:00","11:15","12:30","15:00","16:15","17:30"],
+    4: ["10:00","11:15","12:30","15:00","16:15","17:30"],
+    5: ["10:00","11:15","12:30","15:00","16:15","17:30"],
     6: [],
     0: []
   },
@@ -57,7 +64,7 @@ window.SITE = {
       precio: "45 €",
       resumen: "Una sola tarifa para todo. En consulta decidimos juntos qué necesitas ese día.",
       detalle: [
-        "Acupuntura, osteopatía, terapia manual",
+        "Acupuntura, osteopatía",
         "Se combinan según lo que pida el cuerpo ese día",
         "Incluye valoración y pautas para casa"
       ]
@@ -109,6 +116,62 @@ window.SITE = {
     "Salud ginecológica", "Lesiones deportivas", "Digestiones lentas",
     "Dolor articular", "Recuperación postparto"
   ],
+
+  /* --- Sobre mí -------------------------------------------- */
+  /* Texto y formación redactados por Alejandro. */
+  sobreMi: {
+    titulo: "Un camino de formación, aprendizaje y dedicación al cuidado del cuerpo",
+    intro: [
+      "Mi trayectoria profesional nace de la inquietud por comprender el cuerpo de una manera global y por seguir aprendiendo constantemente nuevas herramientas que puedan ayudar a mejorar el bienestar, la movilidad y la recuperación.",
+      "A lo largo de los años he ido complementando mi formación en diferentes disciplinas, comenzando por el masaje y avanzando hacia la osteopatía, la Medicina Tradicional China y distintas especializaciones dentro de la acupuntura.",
+      "Esta evolución me permite disponer de diferentes recursos y adaptar cada sesión a las necesidades particulares de cada persona."
+    ],
+    formacion: [
+      { anios: "2019 – 2020", titulo: "Quiromasaje",
+        centro: "Escuela de Masaje Lukai, San Sebastián", texto: "" },
+      { anios: "2020 – 2021", titulo: "Masaje Superior y del Deporte",
+        centro: "Escuela de Masaje Lukai, San Sebastián",
+        texto: "Formación especializada en masaje aplicado al ámbito deportivo, profundizando en el trabajo de la musculatura y en las necesidades de las personas físicamente activas." },
+      { anios: "2021 – 2023", titulo: "Osteopatía Estructural y Periférica",
+        centro: "Escuela de Masaje Lukai, San Sebastián",
+        texto: "Formación en osteopatía estructural y periférica, ampliando mis conocimientos sobre el sistema musculoesquelético y el abordaje manual del cuerpo desde una perspectiva global." },
+      { anios: "2024 – 2026", titulo: "Medicina Tradicional China",
+        centro: "Jason Smith MTC, Madrid",
+        texto: "Formación de dos años en el ámbito de la Medicina Tradicional China. Formación avalada por COFENAT." },
+      { anios: "2025", titulo: "Acupuntura para el Dolor",
+        centro: "La danza de la sabiduría, Madrid",
+        texto: "Especialización en acupuntura orientada al abordaje del dolor, incorporando nuevas herramientas dentro de mi práctica." },
+      { anios: "2025", titulo: "Neuromodulación Percutánea",
+        centro: "La danza de la sabiduría, Madrid",
+        texto: "Formación específica en neuromodulación percutánea." },
+      { anios: "2026", titulo: "Acupuntura Umbilical",
+        centro: "La danza de la sabiduría, Madrid",
+        texto: "Formación especializada en acupuntura umbilical." },
+      { anios: "2026", titulo: "Acupuntura de Muñecas y Tobillos",
+        centro: "La danza de la sabiduría, Madrid",
+        texto: "Formación específica en esta técnica de acupuntura." },
+      { anios: "2026", titulo: "Acupuntura Tung",
+        centro: "La danza de la sabiduría, Madrid",
+        texto: "Formación especializada en Acupuntura Tung, ampliando mis conocimientos dentro de las técnicas de acupuntura." },
+      { anios: "2026", titulo: "Acupuntura Bioenergética",
+        centro: "La danza de la sabiduría, Madrid", texto: "" }
+    ],
+    continua: {
+      titulo: "Una formación que continúa",
+      parrafos: [
+        "Para mí, la formación no termina con un título o un certificado. Seguir aprendiendo es una parte esencial de mi profesión.",
+        "Cada nueva formación me permite ampliar conocimientos, descubrir diferentes enfoques y disponer de más herramientas para valorar y acompañar a cada persona de manera individualizada.",
+        "Mi forma de trabajar busca combinar la experiencia adquirida en quiromasaje, masaje deportivo, osteopatía, Medicina Tradicional China y acupuntura, siempre desde una atención cercana, profesional y adaptada a cada caso."
+      ]
+    },
+    objetivo: {
+      titulo: "Mi objetivo",
+      parrafos: [
+        "Crear un espacio en el que puedas sentirte escuchado, comprendido y acompañado, dedicando a cada persona el tiempo necesario para conocer sus necesidades y encontrar el enfoque más adecuado.",
+        "Porque cada cuerpo es diferente y cada persona necesita ser tratada como tal."
+      ]
+    }
+  },
 
   /* --- Salud ginecológica ---------------------------------- */
   /* Texto redactado por Alejandro. Se incluye dentro de la sesión

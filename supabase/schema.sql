@@ -189,6 +189,7 @@ as $$
 declare
   v_id uuid;
   v_pendientes int;
+  v_separacion constant int := 75;   -- 60 min de sesión + 15 de descanso
 begin
   if p_consent is not true then
     return json_build_object('ok', false, 'mensaje', 'Falta aceptar la política de privacidad.');
@@ -204,9 +205,22 @@ begin
   end if;
 
   -- ¿día o franja bloqueada por Alejandro?
+  -- Se aplica la misma separación mínima que entre citas.
   if exists (select 1 from public.bloqueos b
-             where b.fecha = p_fecha and (b.hora is null or b.hora = p_hora)) then
+             where b.fecha = p_fecha
+               and (b.hora is null
+                    or abs(extract(epoch from (b.hora - p_hora))) < v_separacion * 60)) then
     return json_build_object('ok', false, 'mensaje', 'Esa hora ya no está disponible. Elige otra, por favor.');
+  end if;
+
+  -- Separación mínima entre pacientes: 60 min de sesión + 15 de descanso.
+  -- Impide solapes aunque la petición no venga del formulario de la web.
+  if exists (select 1 from public.citas c
+             where c.slot_date = p_fecha
+               and c.estado <> 'cancelada'
+               and abs(extract(epoch from (c.slot_time - p_hora))) < v_separacion * 60) then
+    return json_build_object('ok', false,
+      'mensaje', 'Esa hora acaba de ocuparse. Elige otra, por favor.');
   end if;
 
   -- límite simple anti-spam

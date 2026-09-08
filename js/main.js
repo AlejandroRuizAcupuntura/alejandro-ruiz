@@ -87,7 +87,30 @@
       </article>`).join('');
   }
 
-  /* ---------- 6. Testimonios ---------- */
+  /* ---------- 6. Sobre mí ---------- */
+  const sm = S.sobreMi;
+  if (sm && document.querySelector('#sm-titulo')) {
+    const bloque = (b) => `
+      <div class="cierre__bloque">
+        <h3>${b.titulo}</h3>
+        ${b.parrafos.map(t => `<p>${t}</p>`).join('')}
+      </div>`;
+    document.querySelector('#sm-titulo').textContent = sm.titulo;
+    document.querySelector('#sm-intro').innerHTML = sm.intro.map(t => `<p class="lead">${t}</p>`).join('');
+    document.querySelector('#sm-formacion').innerHTML = sm.formacion.map(f => `
+      <li class="linea__item">
+        <span class="linea__anios">${f.anios}</span>
+        <div class="linea__cuerpo">
+          <h4>${f.titulo}</h4>
+          <span class="linea__centro">${f.centro}</span>
+          ${f.texto ? `<p>${f.texto}</p>` : ''}
+        </div>
+      </li>`).join('');
+    document.querySelector('#sm-continua').innerHTML = bloque(sm.continua);
+    document.querySelector('#sm-objetivo').innerHTML = bloque(sm.objetivo);
+  }
+
+  /* ---------- 7. Testimonios ---------- */
   const q = $('#quotes');
   if (q) {
     const lista = S.testimonios || [];
@@ -103,12 +126,12 @@
     }
   }
 
-  /* ---------- 7. Horario ---------- */
+  /* ---------- 8. Horario ---------- */
   const hl = $('#horario-list');
   if (hl) hl.innerHTML = S.horario.map(h => `${h.dias}: ${h.horas}`).join('<br>');
 
-  /* ---------- 8. Reveal al hacer scroll ---------- */
-  $$('.section-head, .card, .step, .quote, .form, .about__card, .hero__art, .gine__cab, .gine__item')
+  /* ---------- 9. Reveal al hacer scroll ---------- */
+  $$('.section-head, .card, .step, .quote, .form, .about__card, .hero__art, .gine__cab, .gine__item, .about__intro, .linea__item, .cierre__bloque')
     .forEach(el => el.classList.add('rv'));
   const io = new IntersectionObserver(es => es.forEach(e => {
     if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
@@ -116,7 +139,7 @@
   $$('.rv').forEach(el => io.observe(el));
 
   /* ============================================================
-     9. FORMULARIO DE CITA
+     10. FORMULARIO DE CITA
      ============================================================ */
   const form = $('#form-cita');
   if (!form) return;
@@ -227,9 +250,17 @@
     const ahora = new Date();
     const esHoy = f === iso(ahora);
 
+    /* Separación mínima entre citas: la sesión más el descanso.
+       Una hora no se ofrece si choca con otra cita ya existente,
+       aunque esa cita esté a una hora "rara" (alta manual de la agenda). */
+    const separacion = (S.duracionMin || 60) + (S.separacionMin || 0);
+    const enMinutos = h => { const [x, y] = h.split(':').map(Number); return x * 60 + y; };
+    const chocaCon = h => ocupadas.some(o =>
+      Math.abs(enMinutos(h) - enMinutos(o)) < separacion);
+
     boxSlots.innerHTML = franjas.map(h => {
       const pasada = esHoy && h <= ahora.toTimeString().slice(0, 5);
-      const libre  = !ocupadas.includes(h) && !pasada;
+      const libre  = !chocaCon(h) && !pasada;
       return `<button type="button" class="slot" data-h="${h}" ${libre ? '' : 'disabled'}>${h}</button>`;
     }).join('');
 
