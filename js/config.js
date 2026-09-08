@@ -38,7 +38,9 @@ window.SITE = {
      Van de 75 en 75 minutos para respetar el descanso.
      Mañana  10:00 → 13:30 · Tarde 15:00 → 19:45
      La última sesión empieza a las 18:45 y termina a las 19:45.
-     Sábados: solo mañana, 10:00 → 13:30 (tarifa distinta).       */
+     Sábados: solo mañana, 10:00 → 13:30 (tarifa distinta).
+     OJO: si cambias estas horas, actualiza también la tabla
+     "franjas" de supabase/schema.sql y vuelve a ejecutarlo.     */
   franjas: {
     1: ["10:00","11:15","12:30","15:00","16:15","17:30","18:45"],
     2: ["10:00","11:15","12:30","15:00","16:15","17:30","18:45"],

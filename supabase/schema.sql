@@ -59,6 +59,34 @@ create unique index if not exists bloqueos_hora_unica
   on public.bloqueos (fecha, hora) where hora is not null;
 
 -- ============================================================
+--  2.b FRANJAS VÁLIDAS
+--      Qué horas se pueden pedir cada día de la semana
+--      (0 = domingo, 1 = lunes … 6 = sábado).
+--      DEBE COINCIDIR con "franjas" de js/config.js: si cambias
+--      el horario allí, vuelve a ejecutar este archivo.
+-- ============================================================
+create table if not exists public.franjas (
+  dow  smallint not null check (dow between 0 and 6),
+  hora time     not null,
+  primary key (dow, hora)
+);
+
+delete from public.franjas;
+insert into public.franjas (dow, hora)
+select d, h::time
+from   generate_series(1,5) d,
+       unnest(array['10:00','11:15','12:30','15:00','16:15','17:30','18:45']) h
+union all
+select 6, h::time
+from   unnest(array['10:00','11:15','12:30']) h;
+
+alter table public.franjas enable row level security;
+drop policy if exists "profesional gestiona franjas" on public.franjas;
+create policy "profesional gestiona franjas"
+  on public.franjas for all to authenticated
+  using (true) with check (true);
+
+-- ============================================================
 --  3. HISTORIAL DE CAMBIOS  ("datos de modificación")
 -- ============================================================
 create table if not exists public.citas_log (
@@ -200,8 +228,17 @@ begin
   if p_fecha < current_date or p_fecha > current_date + interval '120 days' then
     return json_build_object('ok', false, 'mensaje', 'La fecha solicitada no es válida.');
   end if;
-  if length(coalesce(p_notas,'')) > 500 or length(p_nombre) > 80 or length(p_telefono) > 25 then
+  if length(coalesce(p_notas,'')) > 500 or length(p_nombre) > 80 or length(p_telefono) > 25
+     or length(coalesce(p_email,'')) > 120 or length(coalesce(p_servicio,'')) > 120 then
     return json_build_object('ok', false, 'mensaje', 'Alguno de los campos es demasiado largo.');
+  end if;
+
+  -- La hora pedida tiene que ser una franja real de ese día de la semana.
+  -- Sin esto se podría reservar por API un domingo a las 03:00.
+  if not exists (select 1 from public.franjas f
+                 where f.dow = extract(dow from p_fecha)::smallint
+                   and f.hora = p_hora) then
+    return json_build_object('ok', false, 'mensaje', 'Esa hora no está disponible. Elige una de las que muestra el calendario.');
   end if;
 
   -- ¿día o franja bloqueada por Alejandro?
