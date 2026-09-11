@@ -333,6 +333,19 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
 .toolbar{ display:flex; flex-wrap:wrap; gap:.7rem; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
 .chips{ display:flex; gap:.4rem; flex-wrap:wrap; }
 .chip{ border:1px solid var(--line); background:var(--bone); padding:.45rem .9rem; font:inherit; font-size:.8rem; cursor:pointer; border-radius:var(--radius); }
+
+/* El botón de filtros y el título de la hoja solo existen en móvil.
+   Esta base va ANTES del media query para que aquel pueda ganarle. */
+.chip--filtro{ display:none; }
+.filtros__tit{
+  display:none; margin:0 0 .3rem; font-size:.7rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--ink-mute);
+}
+.chip__badge{
+  min-width:18px; height:18px; padding:0 5px; border-radius:999px;
+  background:var(--clay); color:#fff; font-size:.66rem; line-height:18px;
+  text-align:center; flex:none;
+}
 .chip.is-on{ background:var(--ink); color:var(--bone); border-color:var(--ink); }
 .tbl{ width:100%; border-collapse:collapse; font-size:.92rem; }
 .tbl th{ text-align:left; font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-mute); font-weight:500; padding:.7rem .6rem; border-bottom:1px solid var(--line); }
@@ -462,6 +475,36 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
   }
   .hero__meta div strong{ font-size:1.75rem; }
   .hero__meta div span{ font-size:.6rem; letter-spacing:.1em; line-height:1.3; display:block; }
+
+  /* Filtros de la agenda: botón + hoja deslizante desde abajo.
+     En una lista horizontal de 8 chips no se veían ni la mitad. */
+  .chip--filtro{
+    display:inline-flex; align-items:center; gap:.55rem;
+    min-height:var(--tap); padding:.5rem 1rem;
+  }
+  .chip--filtro svg{
+    width:14px; height:14px; fill:none; stroke:currentColor;
+    stroke-width:2; stroke-linecap:round; stroke-linejoin:round;
+  }
+  .chip--filtro[aria-expanded="true"] svg{ transform:rotate(180deg); }
+
+  .filtros__caja{
+    position:fixed; inset:0; z-index:85; background:rgba(20,23,15,.5);
+    display:none; align-items:flex-end;
+  }
+  .filtros__caja.is-open{ display:flex; }
+  .filtros__caja #filtros{
+    width:100%; background:var(--paper); border-radius:16px 16px 0 0;
+    padding:1.1rem 1rem calc(1.1rem + env(safe-area-inset-bottom));
+    display:grid; gap:.45rem; max-height:80vh; overflow-y:auto;
+    animation:subirHoja .25s var(--ease) both;
+  }
+  .filtros__caja #filtros .chip{
+    width:100%; justify-content:flex-start; min-height:var(--tap);
+    display:flex; align-items:center; font-size:.9rem;
+  }
+  .filtros__tit{ display:block; }
+  @keyframes subirHoja{ from{ transform:translateY(14px); opacity:0; } to{ transform:none; opacity:1; } }
 
   /* Marquee un poco más contenido */
   .marquee{ padding:.85rem 0; }
@@ -616,6 +659,9 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
 
 /* ---------- Avisar al paciente ---------- */
 .modal__caja--estrecha{ width:min(420px,100%); }
+.aviso__sin{ width:100%; justify-content:center; margin-top:.2rem; }
+
+/* ---------- Filtros: en móvil, un botón que abre la lista ---------- */
 .aviso__cita{
   margin:0 0 .4rem; padding:.9rem 1rem; background:var(--bone-2);
   border:1px solid var(--line); border-radius:10px; line-height:1.5; font-size:.95rem;

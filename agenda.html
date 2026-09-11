@@ -73,7 +73,14 @@
           <p class="eyebrow" style="margin:0">Agenda</p>
           <h2 style="font-size:2rem" id="titulo-vista">Tu cuaderno de citas</h2>
         </div>
+        <button class="chip chip--filtro" id="abrir-filtros" aria-expanded="false" aria-controls="filtros">
+          <span>Ver: <b id="filtro-actual">Próximas</b></span>
+          <span class="chip__badge" id="badge-filtros" hidden></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="filtros__caja" id="filtros-caja">
         <div class="chips" id="filtros">
+          <p class="filtros__tit">Ver citas</p>
           <button class="chip is-on" data-f="proximas">Próximas</button>
           <button class="chip chip--aviso" data-f="pendientes">Sin confirmar <span id="cuenta-pendientes"></span></button>
           <button class="chip" data-f="hoy">Hoy</button>
@@ -82,6 +89,7 @@
           <button class="chip" data-f="mes">30 días</button>
           <button class="chip" data-f="pasadas">Pasadas</button>
           <button class="chip" data-f="todas">Todas</button>
+        </div>
         </div>
       </div>
 
@@ -181,7 +189,7 @@
   <div class="modal__caja modal__caja--estrecha">
     <div class="modal__cab">
       <h3 id="aviso-titulo">Avisar al paciente</h3>
-      <button class="chip" id="cerrar-aviso">Ahora no</button>
+      <button class="chip" id="cerrar-aviso">Cancelar</button>
     </div>
     <p class="aviso__cita" id="aviso-cita"></p>
     <p class="aviso__ayuda">Se abrirá la aplicación con el mensaje ya escrito. Solo tienes que enviarlo.</p>
@@ -195,6 +203,7 @@
         <span>Email<small id="aviso-email"></small></span>
       </a>
       <p class="aviso__sinmail" id="aviso-sinmail" hidden>Este paciente no dejó email.</p>
+      <button class="chip aviso__sin" id="aviso-sin" hidden>Confirmar sin avisar</button>
     </div>
   </div>
 </div>

@@ -76,10 +76,24 @@
   }
 
   /* ---------- Filtros ---------- */
+  /* En móvil la lista de filtros vive en una hoja que se abre desde
+     un botón; en escritorio sigue siendo una fila de chips normal. */
+  const cajaFiltros = $('#filtros-caja'), btnFiltros = $('#abrir-filtros');
+  function abrirFiltros(abrir) {
+    cajaFiltros.classList.toggle('is-open', abrir);
+    btnFiltros.setAttribute('aria-expanded', String(abrir));
+  }
+  btnFiltros.addEventListener('click', () =>
+    abrirFiltros(!cajaFiltros.classList.contains('is-open')));
+  cajaFiltros.addEventListener('click', e => { if (e.target === cajaFiltros) abrirFiltros(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape') abrirFiltros(false); });
+
   $$('#filtros .chip[data-f]').forEach(b => b.addEventListener('click', () => {
     $$('#filtros .chip[data-f]').forEach(x => x.classList.remove('is-on'));
     b.classList.add('is-on');
     filtro = b.dataset.f;
+    $('#filtro-actual').textContent = b.textContent.replace(/\(\d+\)/, '').trim();
+    abrirFiltros(false);
     cargar();
   }));
   $('#chip-refrescar').addEventListener('click', cargar);
@@ -176,6 +190,8 @@
       const n = await DB.contarPendientes();
       el.textContent = n ? `(${n})` : '';
       el.closest('.chip').classList.toggle('tiene-pendientes', n > 0);
+      const badge = $('#badge-filtros');      // se ve sin abrir la hoja
+      if (badge) { badge.textContent = n; badge.hidden = !n; }
     } catch (e) { el.textContent = ''; }
 
     /* Recordatorios de mañana que todavía están sin enviar */
@@ -199,16 +215,18 @@
       if (a === 'avisar')    return abrirAviso(cita, 'confirmacion');
       if (a === 'borrar' && !confirm('¿Borrar esta cita definitivamente? No se puede deshacer.')) return;
 
+      /* Confirmar pregunta ANTES de guardar: si se cierra el aviso,
+         la cita se queda como estaba. Antes se guardaba primero y
+         "Cancelar" dejaba la cita confirmada sin quererlo. */
+      if (a === 'confirmada' && cita.estado !== 'confirmada') {
+        return abrirAviso(cita, 'confirmacion', { estado: 'confirmada' });
+      }
+
       b.disabled = true;
       try {
         if (a === 'borrar') await DB.borrarCita(id);
         else                await DB.actualizarCita(id, { estado: a });
         await cargar();
-        /* Recién confirmada: se ofrece avisar al paciente. La cita ya
-           está guardada, así que cerrar el aviso no pierde nada. */
-        if (a === 'confirmada' && cita.estado !== 'confirmada') {
-          abrirAviso({ ...cita, estado: 'confirmada' }, 'confirmacion');
-        }
       } catch (e) {
         alert('No se pudo actualizar: ' + e.message);
         b.disabled = false;
@@ -405,10 +423,18 @@
     recordatorio: 'Recordar la cita de mañana'
   };
 
-  function abrirAviso(cita, tipo) {
+  /* `aplicar` son los cambios que solo se guardan si el usuario elige
+     una opción. Con null, la cita ya está guardada y esto es solo el
+     aviso (cambio de hora, recordatorio). */
+  function abrirAviso(cita, tipo, aplicar = null) {
     const plantilla = (S.mensajes || {})[tipo];
-    if (!plantilla) return;                       // sin texto configurado, no molestamos
-    avisoActual = { cita, tipo };
+    if (!plantilla) {                             // sin texto configurado
+      if (aplicar) guardarYRecargar(cita.id, aplicar);
+      return;
+    }
+    avisoActual = { cita, tipo, aplicar };
+    $('#cerrar-aviso').textContent = aplicar ? 'Cancelar' : 'Ahora no';
+    $('#aviso-sin').hidden = !aplicar;
 
     $('#aviso-titulo').textContent = TITULOS[tipo] || 'Avisar al paciente';
     $('#aviso-cita').innerHTML =
@@ -445,18 +471,33 @@
   /* Al pulsar WhatsApp o email se apunta la fecha del aviso, para que
      la lista muestre quién ya está avisado. No podemos saber si de
      verdad ha pulsado "Enviar": siempre se puede volver a abrir. */
-  async function marcarAviso() {
+  async function guardarYRecargar(id, cambios) {
+    try {
+      await DB.actualizarCita(id, cambios);
+      await cargar();
+    } catch (e) { alert('No se pudo guardar: ' + e.message); }
+  }
+
+  /* Se deja que el enlace navegue solo (no se hace preventDefault):
+     si esperásemos al guardado, el navegador bloquearía la pestaña
+     por abrirse fuera del gesto del usuario. */
+  function marcarAviso() {
     if (!avisoActual) return;
-    const { cita, tipo } = avisoActual;
+    const { cita, tipo, aplicar } = avisoActual;
     const campo = tipo === 'recordatorio' ? 'recordatorio_enviado_at' : 'aviso_enviado_at';
     cerrarAviso();
-    try {
-      await DB.actualizarCita(cita.id, { [campo]: new Date().toISOString() });
-      await cargar();
-    } catch (e) { console.warn('No se pudo marcar el aviso:', e.message); }
+    guardarYRecargar(cita.id, { ...(aplicar || {}), [campo]: new Date().toISOString() });
   }
   $('#aviso-wa').addEventListener('click', marcarAviso);
   $('#aviso-mail').addEventListener('click', marcarAviso);
+
+  /* Confirmar pero sin mandar nada al paciente */
+  $('#aviso-sin').addEventListener('click', () => {
+    if (!avisoActual || !avisoActual.aplicar) return;
+    const { cita, aplicar } = avisoActual;
+    cerrarAviso();
+    guardarYRecargar(cita.id, aplicar);
+  });
 
   /* ============================================================
      Historial de cambios
