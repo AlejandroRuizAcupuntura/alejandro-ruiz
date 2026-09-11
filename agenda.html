@@ -99,6 +99,12 @@
         <button class="chip" id="chip-refrescar">Actualizar</button>
       </div>
 
+      <!-- Aparece solo si mañana hay citas confirmadas sin recordar -->
+      <div class="banner-rec" id="banner-recordar" hidden>
+        <span id="banner-recordar-txt"></span>
+        <button class="chip chip--accion" id="btn-recordar">Recordar ahora</button>
+      </div>
+
       <!-- Alta / edición de cita -->
       <div class="panel" id="box-cita" hidden style="margin-bottom:1.5rem">
         <h3 id="titulo-cita" style="margin-bottom:1.2rem">Nueva cita</h3>
@@ -192,6 +198,11 @@
       <button class="chip" id="cerrar-aviso">Cancelar</button>
     </div>
     <p class="aviso__cita" id="aviso-cita"></p>
+    <div class="aviso__tipos" id="aviso-tipos" hidden>
+      <button type="button" class="chip mini" data-tipo="confirmacion">Confirmación</button>
+      <button type="button" class="chip mini" data-tipo="cambio">Cambio</button>
+      <button type="button" class="chip mini" data-tipo="recordatorio">Recordatorio</button>
+    </div>
     <p class="aviso__ayuda">Se abrirá la aplicación con el mensaje ya escrito. Solo tienes que enviarlo.</p>
     <div class="aviso__botones">
       <a class="btn aviso__wa" id="aviso-wa" target="_blank" rel="noopener">

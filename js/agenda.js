@@ -129,6 +129,7 @@
             : 'No hay citas en este periodo.') + '</td></tr>';
       } else {
         let ultimaFecha = null;
+        const movidas = leerMovidas();
         tbody.innerHTML = citasCache.map(c => {
           let cabecera = '';
           if (c.slot_date !== ultimaFecha) {
@@ -136,6 +137,9 @@
             cabecera = `<tr class="tbl__dia"><td colspan="7">${escapar(fechaLarga(c.slot_date))}</td></tr>`;
           }
           const esManana = c.slot_date === masDias(1);
+          const movida   = c.estado === 'confirmada' && !!movidas[c.id];
+          /* "Avisar" se resalta si hay algo pendiente de comunicar */
+          const pideAviso = movida || (esManana && c.estado === 'confirmada' && !c.recordatorio_enviado_at);
           const modificada = c.updated_at && c.created_at &&
             new Date(c.updated_at) - new Date(c.created_at) > 2000;
           return cabecera + `
@@ -159,16 +163,14 @@
             ${modificada ? `<br><span class="muted" style="font-size:.7rem">modificada ${escapar(momento(c.updated_at))}</span>` : ''}
             ${c.aviso_enviado_at ? '<br><span class="marca-aviso">avisado</span>' : ''}
             ${c.recordatorio_enviado_at ? '<br><span class="marca-aviso">recordado</span>' : ''}
+            ${movida ? '<br><span class="marca-aviso marca-aviso--pendiente">cambio sin avisar</span>' : ''}
           </td>
           <td data-l="Acciones">
-            ${esManana && c.estado === 'confirmada'
-              ? `<button class="chip mini ${c.recordatorio_enviado_at ? '' : 'chip--accion'}" data-a="recordar">${
-                  c.recordatorio_enviado_at ? 'Recordar otra vez' : 'Recordar'}</button>` : ''}
-            ${c.estado === 'confirmada' && !esManana
-              ? '<button class="chip mini" data-a="avisar">Avisar</button>' : ''}
+            ${c.estado === 'confirmada'
+              ? `<button class="chip mini ${pideAviso ? 'chip--accion' : ''}" data-a="avisar">Avisar</button>` : ''}
             <button class="chip mini" data-a="editar">Editar</button>
-            <button class="chip mini" data-a="confirmada">Confirmar</button>
-            <button class="chip mini" data-a="cancelada">Anular</button>
+            ${c.estado !== 'confirmada' ? '<button class="chip mini" data-a="confirmada">Confirmar</button>' : ''}
+            ${c.estado !== 'cancelada'  ? '<button class="chip mini" data-a="cancelada">Anular</button>' : ''}
             <button class="chip mini" data-a="historial">Historial</button>
             <button class="chip mini" data-a="borrar">Borrar</button>
           </td>
@@ -201,7 +203,10 @@
       const n = await DB.contarRecordatorios(masDias(1));
       elM.textContent = n ? `(${n})` : '';
       elM.closest('.chip').classList.toggle('tiene-pendientes', n > 0);
-    } catch (e) { elM.textContent = ''; }
+      $('#banner-recordar-txt').innerHTML =
+        `Mañana tienes <b>${n}</b> ${n === 1 ? 'cita' : 'citas'} sin recordar.`;
+      $('#banner-recordar').hidden = !n;
+    } catch (e) { elM.textContent = ''; $('#banner-recordar').hidden = true; }
   }
 
   function conectarAcciones() {
@@ -211,15 +216,14 @@
 
       if (a === 'editar')    return abrirFormularioCita(cita);
       if (a === 'historial') return verHistorial(cita);
-      if (a === 'recordar')  return abrirAviso(cita, 'recordatorio');
-      if (a === 'avisar')    return abrirAviso(cita, 'confirmacion');
+      if (a === 'avisar')    return abrirAviso(cita, tipoSugerido(cita), { elegir: true });
       if (a === 'borrar' && !confirm('¿Borrar esta cita definitivamente? No se puede deshacer.')) return;
 
       /* Confirmar pregunta ANTES de guardar: si se cierra el aviso,
          la cita se queda como estaba. Antes se guardaba primero y
          "Cancelar" dejaba la cita confirmada sin quererlo. */
       if (a === 'confirmada' && cita.estado !== 'confirmada') {
-        return abrirAviso(cita, 'confirmacion', { estado: 'confirmada' });
+        return abrirAviso(cita, 'confirmacion', { aplicar: { estado: 'confirmada' } });
       }
 
       b.disabled = true;
@@ -291,6 +295,7 @@
         aviso(m, 'Cita actualizada.', 'ok');
         if (seMueve && datos.estado !== 'cancelada') {
           citaMovida = { ...antes, ...datos, slot_date: datos.fecha, slot_time: datos.hora };
+          if (datos.estado === 'confirmada') marcarMovida(id, true);
         }
       } else {
         await DB.crearCita(datos);
@@ -411,11 +416,22 @@
   }
 
   const mAviso = $('#modal-aviso');
-  let avisoActual = null;          // { cita, tipo }
+  let avisoActual = null;          // { cita, tipo, aplicar }
+  let colaRecordatorios = null;    // en marcha al pulsar "Recordar ahora"
+  let totalCola = 0;
 
   function cerrarAviso() { mAviso.hidden = true; avisoActual = null; }
-  $('#cerrar-aviso').addEventListener('click', cerrarAviso);
-  mAviso.addEventListener('click', e => { if (e.target === mAviso) cerrarAviso(); });
+
+  /* El botón de cerrar dice "Cancelar", "Ahora no" o "Saltar" según el
+     caso. Dentro de la ronda de recordatorios pasa al siguiente. */
+  $('#cerrar-aviso').addEventListener('click', () => {
+    cerrarAviso();
+    if (colaRecordatorios) siguienteRecordatorio();
+  });
+  // Pulsar fuera del cuadro cierra y detiene la ronda
+  mAviso.addEventListener('click', e => {
+    if (e.target === mAviso) { colaRecordatorios = null; cerrarAviso(); }
+  });
 
   const TITULOS = {
     confirmacion: 'Confirmar al paciente',
@@ -423,24 +439,56 @@
     recordatorio: 'Recordar la cita de mañana'
   };
 
-  /* `aplicar` son los cambios que solo se guardan si el usuario elige
-     una opción. Con null, la cita ya está guardada y esto es solo el
-     aviso (cambio de hora, recordatorio). */
-  function abrirAviso(cita, tipo, aplicar = null) {
-    const plantilla = (S.mensajes || {})[tipo];
-    if (!plantilla) {                             // sin texto configurado
+  /* Citas cambiadas de día u hora cuyo aviso aún no se ha enviado. Se
+     guarda en este navegador: si se cierra el aviso sin mandarlo, luego
+     "Avisar" propone el texto de cambio y la fila lo señala. */
+  const CLAVE_MOVIDAS = 'agenda.movidasSinAvisar';
+  function leerMovidas() {
+    try { return JSON.parse(localStorage.getItem(CLAVE_MOVIDAS)) || {}; }
+    catch (e) { return {}; }
+  }
+  function marcarMovida(id, movida) {
+    try {
+      const m = leerMovidas();
+      if (movida) m[id] = Date.now(); else delete m[id];
+      localStorage.setItem(CLAVE_MOVIDAS, JSON.stringify(m));
+    } catch (e) { /* sin almacenamiento solo se pierde la sugerencia */ }
+  }
+
+  /* Qué mensaje propone "Avisar". En el cuadro se puede cambiar. */
+  function tipoSugerido(c) {
+    if (leerMovidas()[c.id])        return 'cambio';
+    if (c.slot_date === masDias(1)) return 'recordatorio';
+    return 'confirmacion';
+  }
+
+  /* aplicar: cambios que solo se guardan si se elige una opción (al
+     confirmar). Con null, la cita ya está guardada y esto es el aviso.
+     elegir: muestra los botones para cambiar de mensaje. */
+  function abrirAviso(cita, tipo, { aplicar = null, elegir = false } = {}) {
+    if (!(S.mensajes || {})[tipo]) {              // sin texto configurado
       if (aplicar) guardarYRecargar(cita.id, aplicar);
       return;
     }
     avisoActual = { cita, tipo, aplicar };
-    $('#cerrar-aviso').textContent = aplicar ? 'Cancelar' : 'Ahora no';
-    $('#aviso-sin').hidden = !aplicar;
-
-    $('#aviso-titulo').textContent = TITULOS[tipo] || 'Avisar al paciente';
+    $('#cerrar-aviso').textContent = colaRecordatorios ? 'Saltar' : aplicar ? 'Cancelar' : 'Ahora no';
+    $('#aviso-sin').hidden   = !aplicar;
+    $('#aviso-tipos').hidden = !elegir;
     $('#aviso-cita').innerHTML =
       `<b>${escapar(cita.nombre)}</b><br>${escapar(fechaLarga(cita.slot_date))} · ` +
       `${escapar(hhmm(cita.slot_time))}<br>` +
       `<span class="muted">${escapar(cita.servicio || '')}</span>`;
+    pintarAviso();
+    mAviso.hidden = false;
+  }
+
+  /* Título y enlaces para el mensaje elegido */
+  function pintarAviso() {
+    const { cita, tipo } = avisoActual;
+    const plantilla = S.mensajes[tipo];
+    const ronda = colaRecordatorios ? ` · ${totalCola - colaRecordatorios.length} de ${totalCola}` : '';
+    $('#aviso-titulo').textContent = (TITULOS[tipo] || 'Avisar al paciente') + ronda;
+    $$('#aviso-tipos [data-tipo]').forEach(b => b.classList.toggle('is-on', b.dataset.tipo === tipo));
 
     const texto = rellenar(plantilla.texto, cita);
     const tel   = telefonoWa(cita.telefono);
@@ -464,18 +512,21 @@
     } else {
       mail.hidden = true; sinMail.hidden = false;
     }
-
-    mAviso.hidden = false;
   }
+
+  $$('#aviso-tipos [data-tipo]').forEach(b => b.addEventListener('click', () => {
+    if (!avisoActual || !(S.mensajes || {})[b.dataset.tipo]) return;
+    avisoActual.tipo = b.dataset.tipo;
+    pintarAviso();
+  }));
 
   /* Al pulsar WhatsApp o email se apunta la fecha del aviso, para que
      la lista muestre quién ya está avisado. No podemos saber si de
      verdad ha pulsado "Enviar": siempre se puede volver a abrir. */
-  async function guardarYRecargar(id, cambios) {
-    try {
-      await DB.actualizarCita(id, cambios);
-      await cargar();
-    } catch (e) { alert('No se pudo guardar: ' + e.message); }
+  function guardarYRecargar(id, cambios) {
+    return DB.actualizarCita(id, cambios)
+      .then(() => cargar())
+      .catch(e => alert('No se pudo guardar: ' + e.message));
   }
 
   /* Se deja que el enlace navegue solo (no se hace preventDefault):
@@ -485,11 +536,32 @@
     if (!avisoActual) return;
     const { cita, tipo, aplicar } = avisoActual;
     const campo = tipo === 'recordatorio' ? 'recordatorio_enviado_at' : 'aviso_enviado_at';
+    if (tipo === 'cambio') marcarMovida(cita.id, false);
     cerrarAviso();
-    guardarYRecargar(cita.id, { ...(aplicar || {}), [campo]: new Date().toISOString() });
+    const guardado = guardarYRecargar(cita.id, { ...(aplicar || {}), [campo]: new Date().toISOString() });
+    /* El siguiente de la ronda se abre DESPUÉS del guardado, nunca dentro
+       de este clic: si cambiásemos aquí el enlace, el navegador seguiría
+       el nuevo y el mensaje le llegaría al paciente equivocado. */
+    if (colaRecordatorios) guardado.then(() => setTimeout(siguienteRecordatorio, 300));
   }
   $('#aviso-wa').addEventListener('click', marcarAviso);
   $('#aviso-mail').addEventListener('click', marcarAviso);
+
+  /* Ronda de recordatorios: abre uno tras otro los de mañana que
+     faltan. Al volver de WhatsApp, el siguiente ya está esperando. */
+  async function empezarRecordatorios() {
+    try {
+      const lista = await DB.listarCitas({ desde: masDias(1), hasta: masDias(1) });
+      colaRecordatorios = lista.filter(c => c.estado === 'confirmada' && !c.recordatorio_enviado_at);
+      totalCola = colaRecordatorios.length;
+      siguienteRecordatorio();
+    } catch (e) { alert('No se pudieron leer las citas de mañana: ' + e.message); }
+  }
+  function siguienteRecordatorio() {
+    if (!colaRecordatorios || !colaRecordatorios.length) { colaRecordatorios = null; return; }
+    abrirAviso(colaRecordatorios.shift(), 'recordatorio');
+  }
+  $('#btn-recordar').addEventListener('click', empezarRecordatorios);
 
   /* Confirmar pero sin mandar nada al paciente */
   $('#aviso-sin').addEventListener('click', () => {

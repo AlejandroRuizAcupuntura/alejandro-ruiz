@@ -679,6 +679,15 @@ h1 + .lead, h2 + .lead{ margin-top:1.1rem; }
   opacity:.75; margin-top:.15rem; font-weight:400; word-break:break-all;
 }
 .aviso__sinmail{ margin:0; font-size:.82rem; color:var(--ink-mute); text-align:center; }
+/* Tres opciones iguales en una sola fila, también a 390 px */
+.aviso__tipos{ display:grid; grid-template-columns:repeat(3,1fr); gap:.35rem; margin:.3rem 0 .9rem; }
+.aviso__tipos .chip{ text-align:center; padding:.55rem .25rem; font-size:.74rem; min-width:0; }
+.marca-aviso--pendiente{ color:var(--clay); background:rgba(176,112,82,.12); }
+.banner-rec{
+  display:flex; align-items:center; justify-content:space-between; gap:.8rem 1rem; flex-wrap:wrap;
+  margin:0 0 1.4rem; padding:.85rem 1.1rem; border:1px solid var(--clay);
+  border-radius:var(--radius); background:rgba(176,112,82,.08); font-size:.92rem;
+}
 .marca-aviso{
   display:inline-block; margin-top:.25rem; font-size:.66rem; letter-spacing:.12em;
   text-transform:uppercase; color:var(--sage-deep);
