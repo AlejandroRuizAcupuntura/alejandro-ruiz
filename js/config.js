@@ -79,10 +79,11 @@ window.SITE = {
     {
       id: "presoterapia",
       titulo: "Presoterapia",
-      duracion: "Sesión suelta",
+      duracion: "30 – 45 min",
       precio: "15 €",
       resumen: "Compresión secuencial en piernas para aligerar la sensación de pesadez, la retención de líquidos y la fatiga muscular.",
       detalle: [
+        "Las sesiones suelen durar entre 30 y 45 minutos",
         "Se puede añadir a una sesión o reservarse sola",
         "Muy indicada después del deporte",
         "También disponible en bono de 10 sesiones"
@@ -95,6 +96,7 @@ window.SITE = {
       precio: "130 €",
       resumen: "El bono completo de presoterapia, con un ahorro de 20 € sobre el precio por sesión suelta.",
       detalle: [
+        "Cada sesión dura entre 30 y 45 minutos",
         "Sin caducidad marcada: se usan a tu ritmo",
         "Se abona en la primera sesión del bono",
         "Reserva cada sesión como cualquier otra cita"
