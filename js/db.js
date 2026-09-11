@@ -75,6 +75,19 @@ window.DB = (function () {
     return count || 0;
   }
 
+  /* Citas de mañana ya confirmadas a las que todavía no se ha
+     enviado el recordatorio. Es el número del chip "Mañana". */
+  async function contarRecordatorios(fechaManana) {
+    const { count, error } = await client
+      .from('citas')
+      .select('id', { count: 'exact', head: true })
+      .eq('slot_date', fechaManana)
+      .eq('estado', 'confirmada')
+      .is('recordatorio_enviado_at', null);
+    if (error) throw error;
+    return count || 0;
+  }
+
   async function crearCita(c) {
     const { error } = await client.from('citas').insert({
       nombre: c.nombre, telefono: c.telefono, email: c.email || null,
@@ -132,7 +145,7 @@ window.DB = (function () {
     activo, client,
     disponibilidad, solicitarCita,
     login, logout, sesion,
-    listarCitas, contarPendientes, crearCita, actualizarCita, borrarCita, historial,
+    listarCitas, contarPendientes, contarRecordatorios, crearCita, actualizarCita, borrarCita, historial,
     listarBloqueos, crearBloqueo, borrarBloqueo
   };
 })();

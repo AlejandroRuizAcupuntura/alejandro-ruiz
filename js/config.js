@@ -118,6 +118,57 @@ window.SITE = {
     }
   ],
 
+  /* --- Avisos al paciente ----------------------------------
+     Textos que se abren ya escritos al pulsar WhatsApp o email
+     desde la agenda. Puedes reescribirlos como quieras.
+
+     Huecos que se rellenan solos:
+       {nombre}    nombre del paciente
+       {fecha}     p. ej. "lunes 14 de septiembre"
+       {hora}      p. ej. "11:15"
+       {servicio}  el servicio reservado
+       {direccion} la dirección de la consulta
+       {telefono}  el teléfono de Alejandro
+     Los saltos de línea se respetan tal cual.            */
+  mensajes: {
+    confirmacion: {
+      asunto: "Cita confirmada · {fecha} a las {hora}",
+      texto:
+        "Hola {nombre}, soy Alejandro.\n\n" +
+        "Te confirmo tu cita:\n" +
+        "· {fecha} a las {hora}\n" +
+        "· {servicio}\n" +
+        "· {direccion}\n\n" +
+        "Si te surge cualquier imprevisto, avísame por WhatsApp con al menos " +
+        "24 horas de antelación y lo movemos sin problema.\n\n" +
+        "¡Nos vemos!"
+    },
+    cambio: {
+      asunto: "Tu cita cambia al {fecha} a las {hora}",
+      texto:
+        "Hola {nombre}, soy Alejandro.\n\n" +
+        "Te escribo para confirmarte el cambio de tu cita:\n" +
+        "· {fecha} a las {hora}\n" +
+        "· {servicio}\n" +
+        "· {direccion}\n\n" +
+        "Si esa hora no te viene bien, dímelo y buscamos otra.\n\n" +
+        "Un saludo."
+    },
+    recordatorio: {
+      asunto: "Recordatorio: mañana a las {hora}",
+      texto:
+        "Hola {nombre}, soy Alejandro.\n\n" +
+        "Te recuerdo que mañana {fecha} tienes cita a las {hora}, " +
+        "en {direccion}.\n\n" +
+        "Si no pudieras venir, avísame cuanto antes por WhatsApp.\n\n" +
+        "¡Hasta mañana!"
+    }
+  },
+
+  /* Prefijo telefónico que se asume cuando el paciente escribe
+     su número sin país (9 cifras). 34 = España.            */
+  prefijoPais: "34",
+
   /* --- Motivos de consulta frecuentes ---------------------- */
   motivos: [
     "Dolor de espalda y cuello", "Ciática y lumbalgia", "Migrañas y cefaleas",

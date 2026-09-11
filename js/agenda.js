@@ -89,6 +89,7 @@
     // quedaron sin responder. El filtrado por estado va después.
     if (filtro === 'pendientes') return { desde: '2000-01-01', hasta: '2100-01-01' };
     if (filtro === 'hoy')     return { desde: hoyISO, hasta: hoyISO };
+    if (filtro === 'manana')  return { desde: masDias(1), hasta: masDias(1) };
     if (filtro === 'semana')  return { desde: hoyISO, hasta: masDias(7) };
     if (filtro === 'mes')     return { desde: hoyISO, hasta: masDias(30) };
     if (filtro === 'pasadas') return { desde: '2000-01-01', hasta: masDias(-1) };
@@ -102,12 +103,15 @@
     try {
       citasCache = await DB.listarCitas(rango());
       if (filtro === 'pendientes') citasCache = citasCache.filter(c => c.estado === 'pendiente');
+      if (filtro === 'manana')     citasCache = citasCache.filter(c => c.estado !== 'cancelada');
       if (filtro === 'pasadas') citasCache.reverse();
 
       if (!citasCache.length) {
         tbody.innerHTML = '<tr><td colspan="7" class="muted">' +
           (filtro === 'pendientes'
             ? 'Nada pendiente: todas las citas están confirmadas o anuladas.'
+            : filtro === 'manana'
+            ? 'Mañana no hay citas.'
             : 'No hay citas en este periodo.') + '</td></tr>';
       } else {
         let ultimaFecha = null;
@@ -117,6 +121,7 @@
             ultimaFecha = c.slot_date;
             cabecera = `<tr class="tbl__dia"><td colspan="7">${escapar(fechaLarga(c.slot_date))}</td></tr>`;
           }
+          const esManana = c.slot_date === masDias(1);
           const modificada = c.updated_at && c.created_at &&
             new Date(c.updated_at) - new Date(c.created_at) > 2000;
           return cabecera + `
@@ -138,8 +143,15 @@
           <td data-l="Estado">
             <span class="badge ${escapar(c.estado)}">${escapar(c.estado)}</span>
             ${modificada ? `<br><span class="muted" style="font-size:.7rem">modificada ${escapar(momento(c.updated_at))}</span>` : ''}
+            ${c.aviso_enviado_at ? '<br><span class="marca-aviso">avisado</span>' : ''}
+            ${c.recordatorio_enviado_at ? '<br><span class="marca-aviso">recordado</span>' : ''}
           </td>
           <td data-l="Acciones">
+            ${esManana && c.estado === 'confirmada'
+              ? `<button class="chip mini ${c.recordatorio_enviado_at ? '' : 'chip--accion'}" data-a="recordar">${
+                  c.recordatorio_enviado_at ? 'Recordar otra vez' : 'Recordar'}</button>` : ''}
+            ${c.estado === 'confirmada' && !esManana
+              ? '<button class="chip mini" data-a="avisar">Avisar</button>' : ''}
             <button class="chip mini" data-a="editar">Editar</button>
             <button class="chip mini" data-a="confirmada">Confirmar</button>
             <button class="chip mini" data-a="cancelada">Anular</button>
@@ -165,6 +177,15 @@
       el.textContent = n ? `(${n})` : '';
       el.closest('.chip').classList.toggle('tiene-pendientes', n > 0);
     } catch (e) { el.textContent = ''; }
+
+    /* Recordatorios de mañana que todavía están sin enviar */
+    const elM = $('#cuenta-manana');
+    if (!elM) return;
+    try {
+      const n = await DB.contarRecordatorios(masDias(1));
+      elM.textContent = n ? `(${n})` : '';
+      elM.closest('.chip').classList.toggle('tiene-pendientes', n > 0);
+    } catch (e) { elM.textContent = ''; }
   }
 
   function conectarAcciones() {
@@ -174,6 +195,8 @@
 
       if (a === 'editar')    return abrirFormularioCita(cita);
       if (a === 'historial') return verHistorial(cita);
+      if (a === 'recordar')  return abrirAviso(cita, 'recordatorio');
+      if (a === 'avisar')    return abrirAviso(cita, 'confirmacion');
       if (a === 'borrar' && !confirm('¿Borrar esta cita definitivamente? No se puede deshacer.')) return;
 
       b.disabled = true;
@@ -181,6 +204,11 @@
         if (a === 'borrar') await DB.borrarCita(id);
         else                await DB.actualizarCita(id, { estado: a });
         await cargar();
+        /* Recién confirmada: se ofrece avisar al paciente. La cita ya
+           está guardada, así que cerrar el aviso no pierde nada. */
+        if (a === 'confirmada' && cita.estado !== 'confirmada') {
+          abrirAviso({ ...cita, estado: 'confirmada' }, 'confirmacion');
+        }
       } catch (e) {
         alert('No se pudo actualizar: ' + e.message);
         b.disabled = false;
@@ -192,6 +220,7 @@
      Alta y edición de citas
      ============================================================ */
   const fCita = $('#form-cita-admin');
+  let citaMovida = null;   // cita cuyo día u hora acaba de cambiar
 
   function abrirFormularioCita(cita) {
     limpiar($('#cita-msg'));
@@ -233,12 +262,18 @@
     aviso(m, 'Guardando…', 'info');
     try {
       if (id) {
+        const antes = citasCache.find(c => c.id === id);
+        const seMueve = antes && (antes.slot_date !== datos.fecha ||
+                                  hhmm(antes.slot_time) !== hhmm(datos.hora));
         await DB.actualizarCita(id, {
           nombre: datos.nombre, telefono: datos.telefono, email: datos.email,
           servicio: datos.servicio, slot_date: datos.fecha, slot_time: datos.hora,
           estado: datos.estado, notas: datos.notas, nota_admin: datos.notaAdmin
         });
         aviso(m, 'Cita actualizada.', 'ok');
+        if (seMueve && datos.estado !== 'cancelada') {
+          citaMovida = { ...antes, ...datos, slot_date: datos.fecha, slot_time: datos.hora };
+        }
       } else {
         await DB.crearCita(datos);
         aviso(m, 'Cita creada.', 'ok');
@@ -246,7 +281,10 @@
         $('#c-fecha').value = hoyISO;
       }
       await cargar();
-      setTimeout(() => { boxCita.hidden = true; }, 900);
+      setTimeout(() => {
+        boxCita.hidden = true;
+        if (citaMovida) { abrirAviso(citaMovida, 'cambio'); citaMovida = null; }
+      }, 900);
     } catch (e) {
       const dup = e.code === '23505' || /duplicate|unique/i.test(e.message || '');
       aviso(m, dup ? 'Ya hay otra cita activa a esa hora. Elige otra hora o anula la anterior.'
@@ -310,6 +348,115 @@
       caja.textContent = 'Error al cargar los bloqueos: ' + e.message;
     }
   }
+
+  /* ============================================================
+     Avisar al paciente  (WhatsApp o email, con el texto ya escrito)
+     ============================================================ */
+
+  /* Los pacientes escriben el teléfono como quieren: "664 49 38 38",
+     "+34 664493838", "0034-664 49 38 38"… WhatsApp necesita solo
+     dígitos con prefijo de país. Si no hay prefijo y quedan 9 cifras,
+     se asume España. Devuelve null si no hay nada aprovechable, para
+     no abrir por error la conversación de otra persona. */
+  function telefonoWa(bruto) {
+    let t = String(bruto || '').replace(/[^\d+]/g, '');
+    if (t.startsWith('00')) t = '+' + t.slice(2);
+    if (t.startsWith('+'))  return t.slice(1).length >= 8 ? t.slice(1) : null;
+    if (t.length === 9)     return (S.prefijoPais || '34') + t;   // número nacional
+    return t.length >= 10 ? t : null;                             // ya trae prefijo
+  }
+
+  /* Muestra el número tal como se va a usar, para que se vea de un
+     vistazo si la conversión ha salido mal. */
+  function telefonoVisible(n) {
+    if (!n) return '';
+    const p = S.prefijoPais || '34';
+    return n.startsWith(p) ? `+${p} ${n.slice(p.length)}` : `+${n}`;
+  }
+
+  /* Dentro de una frase la fecha va en minúscula y sin año:
+     "el lunes 14 de septiembre a las 11:15" se lee mejor que
+     "el Lunes, 14 de septiembre de 2026 a las 11:15". */
+  const fechaMensaje = f => new Date(f + 'T12:00:00')
+    .toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
+    .replace(',', '');
+
+  function rellenar(plantilla, cita) {
+    const dir = [S.direccion, S.codigoPostal].filter(Boolean).join(', ');
+    return String(plantilla || '')
+      .replace(/\{nombre\}/g,    (cita.nombre || '').split(' ')[0])
+      .replace(/\{fecha\}/g,     fechaMensaje(cita.slot_date))
+      .replace(/\{hora\}/g,      hhmm(cita.slot_time))
+      .replace(/\{servicio\}/g,  cita.servicio || '')
+      .replace(/\{direccion\}/g, dir)
+      .replace(/\{telefono\}/g,  S.telefono || '');
+  }
+
+  const mAviso = $('#modal-aviso');
+  let avisoActual = null;          // { cita, tipo }
+
+  function cerrarAviso() { mAviso.hidden = true; avisoActual = null; }
+  $('#cerrar-aviso').addEventListener('click', cerrarAviso);
+  mAviso.addEventListener('click', e => { if (e.target === mAviso) cerrarAviso(); });
+
+  const TITULOS = {
+    confirmacion: 'Confirmar al paciente',
+    cambio:       'Avisar del cambio',
+    recordatorio: 'Recordar la cita de mañana'
+  };
+
+  function abrirAviso(cita, tipo) {
+    const plantilla = (S.mensajes || {})[tipo];
+    if (!plantilla) return;                       // sin texto configurado, no molestamos
+    avisoActual = { cita, tipo };
+
+    $('#aviso-titulo').textContent = TITULOS[tipo] || 'Avisar al paciente';
+    $('#aviso-cita').innerHTML =
+      `<b>${escapar(cita.nombre)}</b><br>${escapar(fechaLarga(cita.slot_date))} · ` +
+      `${escapar(hhmm(cita.slot_time))}<br>` +
+      `<span class="muted">${escapar(cita.servicio || '')}</span>`;
+
+    const texto = rellenar(plantilla.texto, cita);
+    const tel   = telefonoWa(cita.telefono);
+    const wa    = $('#aviso-wa');
+    if (tel) {
+      wa.href = `https://wa.me/${tel}?text=${encodeURIComponent(texto)}`;
+      wa.hidden = false;
+      $('#aviso-tel').textContent = telefonoVisible(tel);
+    } else {
+      wa.hidden = true;                           // número ilegible: mejor no arriesgar
+    }
+
+    const mail = $('#aviso-mail'), sinMail = $('#aviso-sinmail');
+    if (cita.email) {
+      mail.href = 'https://mail.google.com/mail/?view=cm&fs=1'
+        + '&to=' + encodeURIComponent(cita.email)
+        + '&su=' + encodeURIComponent(rellenar(plantilla.asunto, cita))
+        + '&body=' + encodeURIComponent(texto);
+      mail.hidden = false; sinMail.hidden = true;
+      $('#aviso-email').textContent = cita.email;
+    } else {
+      mail.hidden = true; sinMail.hidden = false;
+    }
+
+    mAviso.hidden = false;
+  }
+
+  /* Al pulsar WhatsApp o email se apunta la fecha del aviso, para que
+     la lista muestre quién ya está avisado. No podemos saber si de
+     verdad ha pulsado "Enviar": siempre se puede volver a abrir. */
+  async function marcarAviso() {
+    if (!avisoActual) return;
+    const { cita, tipo } = avisoActual;
+    const campo = tipo === 'recordatorio' ? 'recordatorio_enviado_at' : 'aviso_enviado_at';
+    cerrarAviso();
+    try {
+      await DB.actualizarCita(cita.id, { [campo]: new Date().toISOString() });
+      await cargar();
+    } catch (e) { console.warn('No se pudo marcar el aviso:', e.message); }
+  }
+  $('#aviso-wa').addEventListener('click', marcarAviso);
+  $('#aviso-mail').addEventListener('click', marcarAviso);
 
   /* ============================================================
      Historial de cambios

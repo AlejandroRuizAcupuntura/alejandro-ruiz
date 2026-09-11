@@ -77,6 +77,7 @@
           <button class="chip is-on" data-f="proximas">Próximas</button>
           <button class="chip chip--aviso" data-f="pendientes">Sin confirmar <span id="cuenta-pendientes"></span></button>
           <button class="chip" data-f="hoy">Hoy</button>
+          <button class="chip chip--aviso" data-f="manana">Mañana <span id="cuenta-manana"></span></button>
           <button class="chip" data-f="semana">7 días</button>
           <button class="chip" data-f="mes">30 días</button>
           <button class="chip" data-f="pasadas">Pasadas</button>
@@ -175,6 +176,29 @@
 </main>
 
 <!-- Historial de cambios de una cita -->
+<!-- Avisar al paciente: se abre al confirmar o al cambiar día u hora -->
+<div class="modal" id="modal-aviso" hidden>
+  <div class="modal__caja modal__caja--estrecha">
+    <div class="modal__cab">
+      <h3 id="aviso-titulo">Avisar al paciente</h3>
+      <button class="chip" id="cerrar-aviso">Ahora no</button>
+    </div>
+    <p class="aviso__cita" id="aviso-cita"></p>
+    <p class="aviso__ayuda">Se abrirá la aplicación con el mensaje ya escrito. Solo tienes que enviarlo.</p>
+    <div class="aviso__botones">
+      <a class="btn aviso__wa" id="aviso-wa" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C7 3 3 6.6 3 11c0 2.3 1.1 4.4 2.9 5.8L5 21l4.4-1.7c.8.2 1.7.3 2.6.3 5 0 9-3.6 9-8s-4-8-9-8z"/></svg>
+        <span>WhatsApp<small id="aviso-tel"></small></span>
+      </a>
+      <a class="btn btn--ghost aviso__mail" id="aviso-mail" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m3 7 9 6 9-6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span>Email<small id="aviso-email"></small></span>
+      </a>
+      <p class="aviso__sinmail" id="aviso-sinmail" hidden>Este paciente no dejó email.</p>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="modal-historial" hidden>
   <div class="modal__caja">
     <div class="modal__cab">

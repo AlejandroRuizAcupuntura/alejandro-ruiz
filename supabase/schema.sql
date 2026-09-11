@@ -33,6 +33,11 @@ create table if not exists public.citas (
 alter table public.citas add column if not exists updated_at timestamptz not null default now();
 alter table public.citas add column if not exists nota_admin text;
 
+-- Cuándo se avisó al paciente desde la agenda (WhatsApp o email).
+-- Sirve para marcar en la lista quién ya está avisado y no repetir.
+alter table public.citas add column if not exists aviso_enviado_at       timestamptz;
+alter table public.citas add column if not exists recordatorio_enviado_at timestamptz;
+
 -- Una sola cita por franja (las anuladas liberan la hora)
 create unique index if not exists citas_franja_unica
   on public.citas (slot_date, slot_time)
@@ -116,7 +121,10 @@ begin
   elsif (tg_op = 'UPDATE') then
     new.updated_at := now();
     -- solo se registra si cambia algo relevante
-    if to_jsonb(old) - 'updated_at' is distinct from to_jsonb(new) - 'updated_at' then
+    -- Marcar un aviso no es un cambio de la cita: no ensucia el historial.
+    if (to_jsonb(old) - 'updated_at' - 'aviso_enviado_at' - 'recordatorio_enviado_at')
+       is distinct from
+       (to_jsonb(new) - 'updated_at' - 'aviso_enviado_at' - 'recordatorio_enviado_at') then
       insert into public.citas_log (cita_id, quien, accion, antes, despues)
       values (new.id, auth.uid(), 'modificada', to_jsonb(old), to_jsonb(new));
     end if;
