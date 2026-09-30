@@ -170,7 +170,7 @@
         <span class="linea__anios">${f.anios}</span>
         <div class="linea__cuerpo">
           <h4>${f.titulo}</h4>
-          <span class="linea__centro">${f.centro}</span>
+          ${f.centro ? `<span class="linea__centro">${f.centro}</span>` : ''}
           ${f.texto ? `<p>${f.texto}</p>` : ''}
         </div>
       </li>`).join('');
