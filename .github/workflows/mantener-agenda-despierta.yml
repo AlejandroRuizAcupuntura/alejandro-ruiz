@@ -1,0 +1,73 @@
+# ============================================================
+#  Mantiene despierta la agenda online (Supabase)
+#
+#  Supabase pausa los proyectos gratuitos tras ~7 días sin uso.
+#  Cuando eso pasa, el formulario de "Pedir cita" deja de guardar
+#  y hay que reactivar el proyecto a mano desde el panel.
+#
+#  Esta tarea entra lunes y jueves, pregunta por las horas libres
+#  de mañana (solo LEE, no crea ni modifica ninguna cita) y con eso
+#  Supabase ya cuenta el proyecto como activo.
+#
+#  No hace falta ninguna contraseña: usa la misma clave publicable
+#  que ya lleva el sitio en js/config.js.
+#
+#  Nunca falla a propósito: si algún día no hay respuesta, lo deja
+#  escrito en el registro pero no manda correos de error a nadie.
+# ============================================================
+name: Mantener la agenda despierta
+
+on:
+  schedule:
+    # Lunes y jueves a las 06:17 UTC (bastante antes de abrir la consulta).
+    - cron: '17 6 * * 1,4'
+  workflow_dispatch:   # permite lanzarlo a mano desde la pestaña Actions
+
+permissions:
+  contents: write
+
+jobs:
+  despertar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preguntar por la disponibilidad (solo lectura)
+        run: |
+          URL="https://wiunehtdowqeygphwwjs.supabase.co"
+          CLAVE="sb_publishable_WqcY6q43qQBn47AggGHIlw_2L_SqxgE"
+          MANANA=$(date -u -d '+1 day' +%F)
+
+          echo "Preguntando por las horas libres del $MANANA…"
+          CODIGO=$(curl -s -m 30 -o respuesta.txt -w '%{http_code}' \
+            -X POST "$URL/rest/v1/rpc/disponibilidad" \
+            -H "apikey: $CLAVE" \
+            -H "Authorization: Bearer $CLAVE" \
+            -H "Content-Type: application/json" \
+            -d "{\"p_fecha\":\"$MANANA\"}" || echo "000")
+
+          echo "Respuesta HTTP: $CODIGO"
+          cat respuesta.txt || true
+          echo
+
+          if [ "$CODIGO" = "200" ]; then
+            echo "OK — la agenda responde. El proyecto sigue activo."
+          else
+            echo "AVISO — la agenda no ha respondido (codigo $CODIGO)."
+            echo "Puede que el proyecto de Supabase este pausado:"
+            echo "entra en supabase.com/dashboard y pulsa 'Restore project'."
+          fi
+          rm -f respuesta.txt
+
+      # GitHub apaga solo las tareas programadas de los repos que pasan
+      # 60 dias sin ningun cambio. Este apunte, dos veces por semana,
+      # cuenta como cambio y evita que eso ocurra.
+      - name: Dejar constancia de la ultima comprobacion
+        run: |
+          mkdir -p .github
+          date -u '+%Y-%m-%d %H:%M UTC' > .github/ultima-comprobacion.txt
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/ultima-comprobacion.txt
+          git diff --staged --quiet || git commit -m "Comprobacion automatica de la agenda"
+          git push || true

@@ -422,8 +422,12 @@
         horaElegida = '';
       }
     } catch (e) {
+      /* La agenda online no responde (base de datos caída o en pausa).
+         El paciente no puede quedarse sin salida: le dejamos el mensaje
+         de WhatsApp ya escrito con todos sus datos. */
       console.error(e);
-      aviso('No he podido guardar la solicitud. Inténtalo de nuevo o escríbeme por WhatsApp.', 'err');
+      actualizarWa();
+      aviso('Ahora mismo no puedo guardar la solicitud en la agenda online. Pulsa <b>Enviar por WhatsApp</b>: el mensaje ya va escrito con tus datos y te contesto yo.', 'err');
     } finally {
       btnEnviar.disabled = false;
       btnEnviar.textContent = textoOriginal;
